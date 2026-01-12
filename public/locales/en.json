@@ -1,0 +1,37 @@
+{
+  "app": {
+    "title": "Quake Timing"
+  },
+  "navigation": {
+    "title": "Navigation",
+    "main": "Main",
+    "trainer": "Trainer",
+    "settings": "Settings",
+    "about": "About"
+  },
+  "pages": {
+    "current": "Current page"
+  },
+  "main": {
+    "gameMode": "Game mode",
+    "hotkeys": "Hotkeys"
+  },
+  "cheatSheet": {
+    "show": "Show cheat sheet",
+    "hide": "Hide cheat sheet",
+    "placeholderLine1": "QL and QC timing references will be added in stage 7.",
+    "placeholderLine2": "Rows use format: X sec pickup -> Y sec spawn."
+  },
+  "trainer": {
+    "title": "Training mode",
+    "placeholder": "Practice flow and validation are planned for stage 7."
+  },
+  "settings": {
+    "title": "Settings",
+    "placeholder": "Theme, alerts, sound, and window options will be added in stage 8."
+  },
+  "about": {
+    "title": "About",
+    "placeholder": "Author, repository, and version details will be added in stage 9."
+  }
+}

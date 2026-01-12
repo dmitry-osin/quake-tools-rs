@@ -8,7 +8,11 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+node_modules/
 dist
+dist/
+.vite/
+src-tauri/target/
 dist-ssr
 *.local
 
