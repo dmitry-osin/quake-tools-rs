@@ -14,6 +14,9 @@
   },
   "main": {
     "gameMode": "Game mode",
+    "mapPreset": "Map preset",
+    "customPreset": "Custom",
+    "customItems": "Custom item pool",
     "hotkeys": "Hotkeys"
   },
   "cheatSheet": {

@@ -1,3 +1,5 @@
-export type Page = "Main" | "Trainer" | "Settings" | "About";
+import type { Page } from "./domain";
 
 export const PAGES: Page[] = ["Main", "Trainer", "Settings", "About"];
+
+export type { Page };

@@ -5,9 +5,10 @@ type TimerCardProps = {
   hotkey: string;
   icon: "armor" | "mega" | "health";
   color: string;
+  spawnSeconds: number;
 };
 
-export function TimerCard({ label, hotkey, icon, color }: TimerCardProps) {
+export function TimerCard({ label, hotkey, icon, color, spawnSeconds }: TimerCardProps) {
   const iconNode =
     icon === "armor" ? (
       <Shield size={16} color={color} />
@@ -27,6 +28,7 @@ export function TimerCard({ label, hotkey, icon, color }: TimerCardProps) {
         <span className="rounded bg-[var(--surface2)] px-2 py-0.5 text-xs text-[var(--t2)]">{hotkey}</span>
       </header>
       <div className="text-2xl font-semibold text-[var(--t1)]">--</div>
+      <div className="mt-1 text-xs text-[var(--t3)]">Spawn: {spawnSeconds}s</div>
       <div className="mt-2 h-1.5 overflow-hidden rounded bg-[var(--border2)]">
         <div className="h-full w-0 rounded bg-[var(--accent)]" />
       </div>
