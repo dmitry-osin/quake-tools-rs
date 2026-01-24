@@ -11,7 +11,10 @@ type Action =
   | { type: "set-nav-open"; open: boolean }
   | { type: "set-game"; game: Game }
   | { type: "set-preset"; presetId: string }
-  | { type: "toggle-custom-item"; itemType: ItemType };
+  | { type: "toggle-custom-item"; itemType: ItemType }
+  | { type: "toggle-global-hook" }
+  | { type: "toggle-sound" }
+  | { type: "toggle-always-on-top" };
 
 const defaultSettings: AppSettings = {
   theme: "Dark",
@@ -91,6 +94,36 @@ export function appReducer(state: AppState, action: Action): AppState {
     }
 
     return withItems(state, state.game, state.presetId, nextCustomItems);
+  }
+
+  if (action.type === "toggle-global-hook") {
+    return {
+      ...state,
+      settings: {
+        ...state.settings,
+        globalHookActive: !state.settings.globalHookActive,
+      },
+    };
+  }
+
+  if (action.type === "toggle-sound") {
+    return {
+      ...state,
+      settings: {
+        ...state.settings,
+        soundEnabled: !state.settings.soundEnabled,
+      },
+    };
+  }
+
+  if (action.type === "toggle-always-on-top") {
+    return {
+      ...state,
+      settings: {
+        ...state.settings,
+        alwaysOnTop: !state.settings.alwaysOnTop,
+      },
+    };
   }
 
   return state;

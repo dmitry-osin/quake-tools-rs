@@ -1,4 +1,4 @@
-import { useMemo, useReducer, useState } from "react";
+import { useMemo, useReducer } from "react";
 import { useTranslation } from "react-i18next";
 import { ALL_ITEM_TYPES, getPresetsByGame } from "../data/gameData";
 import { NavigationDrawer } from "../components/NavigationDrawer";
@@ -13,9 +13,6 @@ import type { Game } from "../types/domain";
 export function AppShell() {
   const { t } = useTranslation();
   const [state, dispatch] = useReducer(appReducer, initialAppState);
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [globalHookEnabled, setGlobalHookEnabled] = useState(false);
-  const [alwaysOnTop, setAlwaysOnTop] = useState(false);
 
   const presets = useMemo(() => getPresetsByGame(state.game), [state.game]);
 
@@ -62,13 +59,13 @@ export function AppShell() {
       <div className="flex min-h-0 w-full flex-col">
         <TitleBar
           appTitle={t("app.title")}
-          globalHookEnabled={globalHookEnabled}
-          soundEnabled={soundEnabled}
-          alwaysOnTop={alwaysOnTop}
+          globalHookEnabled={state.settings.globalHookActive}
+          soundEnabled={state.settings.soundEnabled}
+          alwaysOnTop={state.settings.alwaysOnTop}
           onToggleMenu={() => dispatch({ type: "set-nav-open", open: !state.navOpen })}
-          onToggleGlobalHook={() => setGlobalHookEnabled((prev) => !prev)}
-          onToggleSound={() => setSoundEnabled((prev) => !prev)}
-          onToggleAlwaysOnTop={() => setAlwaysOnTop((prev) => !prev)}
+          onToggleGlobalHook={() => dispatch({ type: "toggle-global-hook" })}
+          onToggleSound={() => dispatch({ type: "toggle-sound" })}
+          onToggleAlwaysOnTop={() => dispatch({ type: "toggle-always-on-top" })}
         />
 
         <main className="min-h-0 flex-1 overflow-y-auto p-4">

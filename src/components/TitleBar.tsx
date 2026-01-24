@@ -22,11 +22,7 @@ export function TitleBar({
   onToggleAlwaysOnTop,
 }: TitleBarProps) {
   return (
-    <header
-      className="flex h-10 items-center justify-between border-b border-[var(--border)] px-3"
-      data-tauri-drag-region
-      style={{ backgroundColor: "var(--titlebar-bg)" }}
-    >
+    <header className="flex h-10 items-center justify-between border-b border-[var(--border)] bg-[var(--titlebar-bg)] px-3" data-tauri-drag-region>
       <div className="flex items-center gap-2">
         <button
           className="icon-button"
