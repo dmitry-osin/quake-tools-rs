@@ -1,4 +1,4 @@
-import { useMemo, useReducer } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ALL_ITEM_TYPES, getPresetsByGame } from "../data/gameData";
 import { NavigationDrawer } from "../components/NavigationDrawer";
@@ -7,14 +7,26 @@ import { AboutPage } from "../pages/AboutPage";
 import { MainPage } from "../pages/MainPage";
 import { SettingsPage } from "../pages/SettingsPage";
 import { TrainerPage } from "../pages/TrainerPage";
-import { appReducer, initialAppState } from "../state/appState";
+import { appReducer, initialAppState, selectGameClockMs } from "../state/appState";
 import type { Game } from "../types/domain";
 
 export function AppShell() {
   const { t } = useTranslation();
   const [state, dispatch] = useReducer(appReducer, initialAppState);
+  const [nowMs, setNowMs] = useState(() => Date.now());
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      const now = Date.now();
+      setNowMs(now);
+      dispatch({ type: "tick", nowMs: now });
+    }, 100);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   const presets = useMemo(() => getPresetsByGame(state.game), [state.game]);
+  const gameClockMs = useMemo(() => selectGameClockMs(state, nowMs), [nowMs, state]);
 
   const pageNode = useMemo(() => {
     if (state.page === "Trainer") {
@@ -40,9 +52,17 @@ export function AppShell() {
         onSelectGame={(game: Game) => dispatch({ type: "set-game", game })}
         onSelectPreset={(presetId) => dispatch({ type: "set-preset", presetId })}
         onToggleCustomItem={(itemType) => dispatch({ type: "toggle-custom-item", itemType })}
+        timers={state.timers}
+        displayMode={state.settings.displayMode}
+        gameClockMs={gameClockMs}
+        gameClockRunning={state.gameClockRunning}
+        onSetDisplayMode={(displayMode) => dispatch({ type: "set-display-mode", displayMode })}
+        onToggleGameClock={() => dispatch({ type: "toggle-game-clock", nowMs })}
+        onResetGameClock={() => dispatch({ type: "reset-game-clock" })}
+        onActivateItem={(itemId) => dispatch({ type: "activate-item", itemId, nowMs })}
       />
     );
-  }, [presets, state]);
+  }, [gameClockMs, nowMs, presets, state]);
 
   return (
     <div className="relative flex h-screen w-full overflow-hidden bg-[var(--background)] text-[var(--foreground)]">

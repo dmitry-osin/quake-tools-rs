@@ -14,7 +14,12 @@ type Action =
   | { type: "toggle-custom-item"; itemType: ItemType }
   | { type: "toggle-global-hook" }
   | { type: "toggle-sound" }
-  | { type: "toggle-always-on-top" };
+  | { type: "toggle-always-on-top" }
+  | { type: "set-display-mode"; displayMode: AppSettings["displayMode"] }
+  | { type: "toggle-game-clock"; nowMs: number }
+  | { type: "reset-game-clock" }
+  | { type: "activate-item"; itemId: string; nowMs: number }
+  | { type: "tick"; nowMs: number };
 
 const defaultSettings: AppSettings = {
   theme: "Dark",
@@ -58,6 +63,23 @@ function withItems(state: AppState, game: Game, presetId: string, customItemType
     items: buildItems(game, itemTypes),
     timers: {},
   };
+}
+
+function getGameClockMs(state: AppState, nowMs: number): number {
+  if (!state.gameClockRunning || state.gameClockStartAt === null) {
+    return state.gameClockOffsetMs;
+  }
+
+  return state.gameClockOffsetMs + (nowMs - state.gameClockStartAt);
+}
+
+function getSpawnMsByItemId(state: AppState, itemId: string): number | null {
+  const item = state.items.find((entry) => entry.id === itemId);
+  if (!item) {
+    return null;
+  }
+
+  return item.spawnSeconds * 1000;
 }
 
 export function appReducer(state: AppState, action: Action): AppState {
@@ -126,5 +148,120 @@ export function appReducer(state: AppState, action: Action): AppState {
     };
   }
 
+  if (action.type === "set-display-mode") {
+    return {
+      ...state,
+      settings: {
+        ...state.settings,
+        displayMode: action.displayMode,
+      },
+    };
+  }
+
+  if (action.type === "toggle-game-clock") {
+    if (state.gameClockRunning) {
+      return {
+        ...state,
+        gameClockOffsetMs: getGameClockMs(state, action.nowMs),
+        gameClockRunning: false,
+        gameClockStartAt: null,
+      };
+    }
+
+    return {
+      ...state,
+      gameClockRunning: true,
+      gameClockStartAt: action.nowMs,
+    };
+  }
+
+  if (action.type === "reset-game-clock") {
+    return {
+      ...state,
+      gameClockOffsetMs: 0,
+      gameClockRunning: false,
+      gameClockStartAt: null,
+    };
+  }
+
+  if (action.type === "activate-item") {
+    const spawnMs = getSpawnMsByItemId(state, action.itemId);
+    if (!spawnMs) {
+      return state;
+    }
+
+    const existing = state.timers[action.itemId];
+    if (existing?.status === "Running") {
+      return state;
+    }
+
+    const gameClockMs = getGameClockMs(state, action.nowMs);
+
+    return {
+      ...state,
+      timers: {
+        ...state.timers,
+        [action.itemId]: {
+          status: "Running",
+          remainingMs: spawnMs,
+          startedAtWallMs: action.nowMs,
+          startedAtGameMs: gameClockMs,
+          spawnAtGameMs: gameClockMs + spawnMs,
+        },
+      },
+    };
+  }
+
+  if (action.type === "tick") {
+    let changed = false;
+    const nextTimers: AppState["timers"] = { ...state.timers };
+
+    for (const itemId of Object.keys(state.timers)) {
+      const timer = state.timers[itemId];
+      if (timer.status !== "Running" || timer.startedAtWallMs === null) {
+        continue;
+      }
+
+      const spawnMs = getSpawnMsByItemId(state, itemId);
+      if (!spawnMs) {
+        continue;
+      }
+
+      const elapsedMs = Math.max(0, action.nowMs - timer.startedAtWallMs);
+      const remainingMs = Math.max(0, spawnMs - elapsedMs);
+
+      if (remainingMs === 0) {
+        nextTimers[itemId] = {
+          ...timer,
+          status: "Expired",
+          remainingMs: 0,
+        };
+        changed = true;
+        continue;
+      }
+
+      if (remainingMs !== timer.remainingMs) {
+        nextTimers[itemId] = {
+          ...timer,
+          remainingMs,
+        };
+        changed = true;
+      }
+    }
+
+    if (!changed) {
+      return state;
+    }
+
+    return {
+      ...state,
+      timers: nextTimers,
+    };
+  }
+
   return state;
+}
+
+export function selectGameClockMs(state: AppState, nowMs: number): number {
+  return getGameClockMs(state, nowMs);
 }
