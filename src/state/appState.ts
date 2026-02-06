@@ -15,6 +15,7 @@ type Action =
   | { type: "toggle-global-hook" }
   | { type: "toggle-sound" }
   | { type: "toggle-always-on-top" }
+  | { type: "toggle-stage-sound"; stage: "stage1" | "stage2" | "stage3" }
   | { type: "set-display-mode"; displayMode: AppSettings["displayMode"] }
   | { type: "toggle-game-clock"; nowMs: number }
   | { type: "reset-game-clock" }
@@ -144,6 +145,19 @@ export function appReducer(state: AppState, action: Action): AppState {
       settings: {
         ...state.settings,
         alwaysOnTop: !state.settings.alwaysOnTop,
+      },
+    };
+  }
+
+  if (action.type === "toggle-stage-sound") {
+    return {
+      ...state,
+      settings: {
+        ...state.settings,
+        [action.stage]: {
+          ...state.settings[action.stage],
+          soundEnabled: !state.settings[action.stage].soundEnabled,
+        },
       },
     };
   }

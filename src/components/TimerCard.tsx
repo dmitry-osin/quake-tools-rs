@@ -9,6 +9,8 @@ type TimerCardProps = {
   status: "Idle" | "Running" | "Expired";
   displayValue: string;
   progressPercent: number;
+  alertColor: string | null;
+  effectClassName: string;
   onActivate: () => void;
 };
 
@@ -21,6 +23,8 @@ export function TimerCard({
   status,
   displayValue,
   progressPercent,
+  alertColor,
+  effectClassName,
   onActivate,
 }: TimerCardProps) {
   const iconNode =
@@ -32,11 +36,21 @@ export function TimerCard({
       <Heart size={16} color={color} />
     );
 
+  const runningClassName = status === "Running" && !alertColor ? "border-l-4" : "border";
+  const textStyle = alertColor ? { color: alertColor } : undefined;
+  const borderStyle =
+    status === "Running" && !alertColor
+      ? { borderLeftColor: color }
+      : alertColor
+        ? { borderColor: alertColor }
+        : undefined;
+
   return (
     <button
       type="button"
       onClick={onActivate}
-      className={status === "Running" ? "relative w-full rounded-lg border-l-4 bg-[var(--surface)] p-3 text-left border-l-[var(--accent)]" : "relative w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 text-left"}
+      className={`relative w-full rounded-lg bg-[var(--surface)] p-3 text-left ${runningClassName} border-[var(--border)] ${effectClassName}`}
+      style={borderStyle}
     >
       <header className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -45,10 +59,15 @@ export function TimerCard({
         </div>
         <span className="rounded bg-[var(--surface2)] px-2 py-0.5 text-xs text-[var(--t2)]">{hotkey}</span>
       </header>
-      <div className="text-2xl font-semibold text-[var(--t1)] tabular-nums">{displayValue}</div>
+      <div className="text-2xl font-semibold tabular-nums" style={textStyle}>
+        {displayValue}
+      </div>
       <div className="mt-1 text-xs text-[var(--t3)]">Spawn: {spawnSeconds}s</div>
       <div className="mt-2 h-1.5 overflow-hidden rounded bg-[var(--border2)]">
-        <div className="h-full rounded bg-[var(--accent)] transition-[width] duration-100" style={{ width: `${progressPercent}%` }} />
+        <div
+          className="h-full rounded transition-[width] duration-100"
+          style={{ width: `${progressPercent}%`, backgroundColor: alertColor ?? color }}
+        />
       </div>
 
       {status === "Expired" ? (

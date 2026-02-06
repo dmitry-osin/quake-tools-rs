@@ -31,6 +31,40 @@ body {
   color: var(--foreground);
 }
 
+@keyframes timer-pulse-slow-keyframe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.008);
+    opacity: 0.92;
+  }
+}
+
+@keyframes timer-pulse-fast-keyframe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.014);
+    opacity: 0.86;
+  }
+}
+
+@keyframes timer-flash-keyframe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
 @layer components {
   .panel {
     @apply rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3;
@@ -80,5 +114,17 @@ body {
   .led-inactive {
     @apply bg-gray-500;
     box-shadow: 0 0 6px #68717c;
+  }
+
+  .timer-pulse-slow {
+    animation: timer-pulse-slow-keyframe 2s ease-in-out infinite;
+  }
+
+  .timer-pulse-fast {
+    animation: timer-pulse-fast-keyframe 1s ease-in-out infinite;
+  }
+
+  .timer-flash {
+    animation: timer-flash-keyframe 0.35s linear infinite;
   }
 }

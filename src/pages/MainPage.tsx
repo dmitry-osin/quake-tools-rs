@@ -4,7 +4,7 @@ import { ITEM_META } from "../data/gameData";
 import { CheatSheet } from "../components/CheatSheet";
 import { HotkeyInput } from "../components/HotkeyInput";
 import { TimerCard } from "../components/TimerCard";
-import type { DisplayMode, Game, ItemConfig, ItemType, MapPreset, TimerEntry } from "../types/domain";
+import type { AlertStageSettings, DisplayMode, Game, ItemConfig, ItemType, MapPreset, TimerEntry } from "../types/domain";
 
 type MainPageProps = {
   game: Game;
@@ -14,6 +14,10 @@ type MainPageProps = {
   items: ItemConfig[];
   timers: Record<string, TimerEntry>;
   displayMode: DisplayMode;
+  soundEnabled: boolean;
+  stage1: AlertStageSettings;
+  stage2: AlertStageSettings;
+  stage3: AlertStageSettings;
   gameClockMs: number;
   gameClockRunning: boolean;
   allItemTypes: ItemType[];
@@ -21,9 +25,15 @@ type MainPageProps = {
   onSelectPreset: (presetId: string) => void;
   onToggleCustomItem: (itemType: ItemType) => void;
   onSetDisplayMode: (displayMode: DisplayMode) => void;
+  onToggleStageSound: (stage: "stage1" | "stage2" | "stage3") => void;
   onToggleGameClock: () => void;
   onResetGameClock: () => void;
   onActivateItem: (itemId: string) => void;
+};
+
+type StageState = {
+  color: string | null;
+  effectClassName: string;
 };
 
 function formatClock(ms: number): string {
@@ -37,6 +47,34 @@ function formatSpawnAt(ms: number): string {
   return formatClock(ms);
 }
 
+function resolveStageState(
+  status: TimerEntry["status"],
+  remainingMs: number,
+  stage1: AlertStageSettings,
+  stage2: AlertStageSettings,
+  stage3: AlertStageSettings,
+): StageState {
+  if (status !== "Running") {
+    return { color: null, effectClassName: "" };
+  }
+
+  const remainingSeconds = Math.ceil(remainingMs / 1000);
+
+  if (remainingSeconds <= stage3.thresholdSeconds) {
+    return { color: stage3.color, effectClassName: "timer-flash" };
+  }
+
+  if (remainingSeconds <= stage2.thresholdSeconds) {
+    return { color: stage2.color, effectClassName: "timer-pulse-fast" };
+  }
+
+  if (remainingSeconds <= stage1.thresholdSeconds) {
+    return { color: stage1.color, effectClassName: "timer-pulse-slow" };
+  }
+
+  return { color: null, effectClassName: "" };
+}
+
 export function MainPage({
   game,
   presetId,
@@ -45,6 +83,10 @@ export function MainPage({
   items,
   timers,
   displayMode,
+  soundEnabled,
+  stage1,
+  stage2,
+  stage3,
   gameClockMs,
   gameClockRunning,
   allItemTypes,
@@ -52,6 +94,7 @@ export function MainPage({
   onSelectPreset,
   onToggleCustomItem,
   onSetDisplayMode,
+  onToggleStageSound,
   onToggleGameClock,
   onResetGameClock,
   onActivateItem,
@@ -159,6 +202,35 @@ export function MainPage({
       </div>
 
       <div className="panel">
+        <h2 className="panel-title">{t("main.alertAudio")}</h2>
+        <div className="space-y-2 text-sm">
+          <div className="flex items-center justify-between rounded border border-[var(--border2)] bg-[var(--surface2)] px-2 py-1">
+            <span>{t("main.globalSound")}</span>
+            <span className={soundEnabled ? "text-emerald-400" : "text-[var(--t3)]"}>{soundEnabled ? "On" : "Off"}</span>
+          </div>
+
+          {([
+            { key: "stage1", label: t("main.stage1") },
+            { key: "stage2", label: t("main.stage2") },
+            { key: "stage3", label: t("main.stage3") },
+          ] as const).map((entry) => {
+            const enabled =
+              entry.key === "stage1" ? stage1.soundEnabled : entry.key === "stage2" ? stage2.soundEnabled : stage3.soundEnabled;
+
+            return (
+              <label
+                key={entry.key}
+                className="flex cursor-pointer items-center justify-between rounded border border-[var(--border2)] bg-[var(--surface2)] px-2 py-1"
+              >
+                <span>{entry.label}</span>
+                <input type="checkbox" checked={enabled} onChange={() => onToggleStageSound(entry.key)} />
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="panel">
         <h2 className="panel-title">{t("main.hotkeys")}</h2>
         <div className="grid gap-2">
           {items.map((item) => (
@@ -180,6 +252,7 @@ export function MainPage({
               : displayMode === "TimeRemaining"
                 ? String(Math.ceil(remainingMs / 1000))
                 : formatSpawnAt(timer?.spawnAtGameMs ?? gameClockMs);
+          const stageState = resolveStageState(status, remainingMs, stage1, stage2, stage3);
 
           return (
             <TimerCard
@@ -192,6 +265,8 @@ export function MainPage({
               status={status}
               displayValue={displayValue}
               progressPercent={progressPercent}
+              alertColor={stageState.color}
+              effectClassName={stageState.effectClassName}
               onActivate={() => onActivateItem(item.id)}
             />
           );
