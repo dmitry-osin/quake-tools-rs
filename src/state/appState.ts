@@ -4,6 +4,7 @@ import {
   getPresetsByGame,
   resolveItemTypes,
 } from "../data/gameData";
+import { isValidHotkey, normalizeHotkeyInput } from "../hotkeys/hotkeyUtils";
 import type { AppSettings, AppState, Game, ItemType, Page } from "../types/domain";
 
 type Action =
@@ -13,9 +14,12 @@ type Action =
   | { type: "set-preset"; presetId: string }
   | { type: "toggle-custom-item"; itemType: ItemType }
   | { type: "toggle-global-hook" }
+  | { type: "set-global-hook"; active: boolean }
   | { type: "toggle-sound" }
   | { type: "toggle-always-on-top" }
   | { type: "toggle-stage-sound"; stage: "stage1" | "stage2" | "stage3" }
+  | { type: "assign-hotkey"; itemId: string; hotkey: string }
+  | { type: "clear-hotkey-conflict" }
   | { type: "set-display-mode"; displayMode: AppSettings["displayMode"] }
   | { type: "toggle-game-clock"; nowMs: number }
   | { type: "reset-game-clock" }
@@ -129,6 +133,16 @@ export function appReducer(state: AppState, action: Action): AppState {
     };
   }
 
+  if (action.type === "set-global-hook") {
+    return {
+      ...state,
+      settings: {
+        ...state.settings,
+        globalHookActive: action.active,
+      },
+    };
+  }
+
   if (action.type === "toggle-sound") {
     return {
       ...state,
@@ -159,6 +173,44 @@ export function appReducer(state: AppState, action: Action): AppState {
           soundEnabled: !state.settings[action.stage].soundEnabled,
         },
       },
+    };
+  }
+
+  if (action.type === "assign-hotkey") {
+    const normalized = normalizeHotkeyInput(action.hotkey);
+    if (!isValidHotkey(normalized)) {
+      return state;
+    }
+
+    const conflict = state.items.find((entry) => entry.id !== action.itemId && normalizeHotkeyInput(entry.hotkey) === normalized);
+    if (conflict) {
+      return {
+        ...state,
+        hotkeyConflict: {
+          itemId: action.itemId,
+          conflictsWith: conflict.id,
+        },
+      };
+    }
+
+    return {
+      ...state,
+      hotkeyConflict: null,
+      items: state.items.map((entry) =>
+        entry.id === action.itemId
+          ? {
+              ...entry,
+              hotkey: normalized,
+            }
+          : entry,
+      ),
+    };
+  }
+
+  if (action.type === "clear-hotkey-conflict") {
+    return {
+      ...state,
+      hotkeyConflict: null,
     };
   }
 

@@ -4,7 +4,7 @@ import { ITEM_META } from "../data/gameData";
 import { CheatSheet } from "../components/CheatSheet";
 import { HotkeyInput } from "../components/HotkeyInput";
 import { TimerCard } from "../components/TimerCard";
-import type { AlertStageSettings, DisplayMode, Game, ItemConfig, ItemType, MapPreset, TimerEntry } from "../types/domain";
+import type { AlertStageSettings, DisplayMode, Game, HotkeyConflict, ItemConfig, ItemType, MapPreset, TimerEntry } from "../types/domain";
 
 type MainPageProps = {
   game: Game;
@@ -12,6 +12,7 @@ type MainPageProps = {
   customItemTypes: ItemType[];
   presets: MapPreset[];
   items: ItemConfig[];
+  hotkeyConflict: HotkeyConflict | null;
   timers: Record<string, TimerEntry>;
   displayMode: DisplayMode;
   soundEnabled: boolean;
@@ -25,6 +26,8 @@ type MainPageProps = {
   onSelectPreset: (presetId: string) => void;
   onToggleCustomItem: (itemType: ItemType) => void;
   onSetDisplayMode: (displayMode: DisplayMode) => void;
+  onAssignHotkey: (itemId: string, hotkey: string) => void;
+  onClearHotkeyConflict: () => void;
   onToggleStageSound: (stage: "stage1" | "stage2" | "stage3") => void;
   onToggleGameClock: () => void;
   onResetGameClock: () => void;
@@ -81,6 +84,7 @@ export function MainPage({
   customItemTypes,
   presets,
   items,
+  hotkeyConflict,
   timers,
   displayMode,
   soundEnabled,
@@ -94,6 +98,8 @@ export function MainPage({
   onSelectPreset,
   onToggleCustomItem,
   onSetDisplayMode,
+  onAssignHotkey,
+  onClearHotkeyConflict,
   onToggleStageSound,
   onToggleGameClock,
   onResetGameClock,
@@ -232,9 +238,23 @@ export function MainPage({
 
       <div className="panel">
         <h2 className="panel-title">{t("main.hotkeys")}</h2>
+        {hotkeyConflict ? (
+          <div className="mb-2 rounded border border-rose-700/80 bg-rose-950/30 px-2 py-1 text-xs text-rose-200" role="alert">
+            {t("main.hotkeyConflict")}: {hotkeyConflict.itemId} - {hotkeyConflict.conflictsWith}
+            <button className="ml-2 underline" type="button" onClick={onClearHotkeyConflict}>
+              {t("main.dismiss")}
+            </button>
+          </div>
+        ) : null}
         <div className="grid gap-2">
           {items.map((item) => (
-            <HotkeyInput key={item.id} itemLabel={ITEM_META[item.itemType].label} hotkey={item.hotkey} />
+            <HotkeyInput
+              key={item.id}
+              itemId={item.id}
+              itemLabel={ITEM_META[item.itemType].label}
+              hotkey={item.hotkey}
+              onAssign={onAssignHotkey}
+            />
           ))}
         </div>
       </div>

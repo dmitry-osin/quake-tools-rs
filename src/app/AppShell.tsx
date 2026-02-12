@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { register, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
 import { playStage1, playStage2, playStage3 } from "../audio/alertAudio";
 import { ALL_ITEM_TYPES, getPresetsByGame } from "../data/gameData";
+import { eventToHotkey, normalizeHotkeyInput, toPluginHotkey } from "../hotkeys/hotkeyUtils";
 import { NavigationDrawer } from "../components/NavigationDrawer";
 import { TitleBar } from "../components/TitleBar";
 import { AboutPage } from "../pages/AboutPage";
@@ -15,6 +17,7 @@ export function AppShell() {
   const { t } = useTranslation();
   const [state, dispatch] = useReducer(appReducer, initialAppState);
   const [nowMs, setNowMs] = useState(() => Date.now());
+  const [globalHookError, setGlobalHookError] = useState<string | null>(null);
   const previousSecondsRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
@@ -75,6 +78,80 @@ export function AppShell() {
     previousSecondsRef.current = nextSeconds;
   }, [state.settings, state.timers]);
 
+  useEffect(() => {
+    let active = true;
+
+    async function syncGlobalShortcuts(): Promise<void> {
+      try {
+        await unregisterAll();
+      } catch {
+        if (active) {
+          setGlobalHookError(t("main.globalHookDenied"));
+          dispatch({ type: "set-global-hook", active: false });
+        }
+        return;
+      }
+
+      if (!state.settings.globalHookActive) {
+        setGlobalHookError(null);
+        return;
+      }
+
+      try {
+        for (const item of state.items) {
+          await register(toPluginHotkey(item.hotkey), () => {
+            dispatch({ type: "activate-item", itemId: item.id, nowMs: Date.now() });
+          });
+        }
+
+        if (active) {
+          setGlobalHookError(null);
+        }
+      } catch {
+        if (active) {
+          setGlobalHookError(t("main.globalHookDenied"));
+          dispatch({ type: "set-global-hook", active: false });
+        }
+      }
+    }
+
+    void syncGlobalShortcuts();
+
+    return () => {
+      active = false;
+      void unregisterAll();
+    };
+  }, [state.items, state.settings.globalHookActive, t]);
+
+  useEffect(() => {
+    if (state.settings.globalHookActive && !globalHookError) {
+      return;
+    }
+
+    const listener = (event: KeyboardEvent) => {
+      const element = event.target as HTMLElement | null;
+      if (element && (element.tagName === "INPUT" || element.tagName === "TEXTAREA" || element.getAttribute("contenteditable") === "true")) {
+        return;
+      }
+
+      const pressed = normalizeHotkeyInput(eventToHotkey(event));
+      if (!pressed) {
+        return;
+      }
+
+      const item = state.items.find((entry) => normalizeHotkeyInput(entry.hotkey) === pressed);
+      if (!item) {
+        return;
+      }
+
+      event.preventDefault();
+      dispatch({ type: "activate-item", itemId: item.id, nowMs: Date.now() });
+    };
+
+    window.addEventListener("keydown", listener);
+    return () => window.removeEventListener("keydown", listener);
+  }, [globalHookError, state.items, state.settings.globalHookActive]);
+
   const presets = useMemo(() => getPresetsByGame(state.game), [state.game]);
   const gameClockMs = useMemo(() => selectGameClockMs(state, nowMs), [nowMs, state]);
 
@@ -98,6 +175,7 @@ export function AppShell() {
         customItemTypes={state.customItemTypes}
         presets={presets}
         items={state.items}
+        hotkeyConflict={state.hotkeyConflict}
         allItemTypes={ALL_ITEM_TYPES}
         onSelectGame={(game: Game) => dispatch({ type: "set-game", game })}
         onSelectPreset={(presetId) => dispatch({ type: "set-preset", presetId })}
@@ -111,6 +189,8 @@ export function AppShell() {
         gameClockMs={gameClockMs}
         gameClockRunning={state.gameClockRunning}
         onSetDisplayMode={(displayMode) => dispatch({ type: "set-display-mode", displayMode })}
+        onAssignHotkey={(itemId, hotkey) => dispatch({ type: "assign-hotkey", itemId, hotkey })}
+        onClearHotkeyConflict={() => dispatch({ type: "clear-hotkey-conflict" })}
         onToggleStageSound={(stage) => dispatch({ type: "toggle-stage-sound", stage })}
         onToggleGameClock={() => dispatch({ type: "toggle-game-clock", nowMs })}
         onResetGameClock={() => dispatch({ type: "reset-game-clock" })}
@@ -132,6 +212,9 @@ export function AppShell() {
       />
 
       <div className="flex min-h-0 w-full flex-col">
+        {globalHookError ? (
+          <div className="border-b border-amber-700/50 bg-amber-950/50 px-3 py-1 text-xs text-amber-200">{globalHookError}</div>
+        ) : null}
         <TitleBar
           appTitle={t("app.title")}
           globalHookEnabled={state.settings.globalHookActive}
