@@ -157,7 +157,7 @@ export function AppShell() {
 
   const pageNode = useMemo(() => {
     if (state.page === "Trainer") {
-      return <TrainerPage />;
+      return <TrainerPage game={state.game} />;
     }
 
     if (state.page === "Settings") {

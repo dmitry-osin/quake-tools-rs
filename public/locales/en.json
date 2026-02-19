@@ -38,12 +38,24 @@
   "cheatSheet": {
     "show": "Show cheat sheet",
     "hide": "Hide cheat sheet",
-    "placeholderLine1": "QL and QC timing references will be added in stage 7.",
-    "placeholderLine2": "Rows use format: X sec pickup -> Y sec spawn."
+    "qlArmor": "Armor (25s)",
+    "qlHealth": "Health (35s)",
+    "qcShared": "Armor / Health (30s)"
   },
   "trainer": {
     "title": "Training mode",
-    "placeholder": "Practice flow and validation are planned for stage 7."
+    "accuracy": "Accuracy",
+    "start": "Start practice",
+    "end": "End session",
+    "next": "Next question",
+    "item": "Item",
+    "pickup": "Pickup",
+    "spawn": "Spawn",
+    "check": "Check",
+    "correct": "Correct",
+    "incorrect": "Incorrect",
+    "yourAnswer": "Your answer",
+    "rightAnswer": "Correct answer"
   },
   "settings": {
     "title": "Settings",

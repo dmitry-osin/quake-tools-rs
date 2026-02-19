@@ -293,7 +293,7 @@ export function MainPage({
         })}
       </div>
 
-      <CheatSheet />
+      <CheatSheet game={game} />
     </section>
   );
 }
