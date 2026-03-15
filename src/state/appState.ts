@@ -5,10 +5,20 @@ import {
   resolveItemTypes,
 } from "../data/gameData";
 import { isValidHotkey, normalizeHotkeyInput } from "../hotkeys/hotkeyUtils";
-import type { AppSettings, AppState, Game, ItemType, Page } from "../types/domain";
+import type { AppSettings, AppState, Game, ItemConfig, ItemType, Page, Theme } from "../types/domain";
 
 type Action =
   | { type: "set-page"; page: Page }
+  | {
+      type: "hydrate";
+      payload: {
+        game: Game;
+        presetId: string;
+        customItemTypes: ItemType[];
+        items: ItemConfig[];
+        settings: AppSettings;
+      };
+    }
   | { type: "set-nav-open"; open: boolean }
   | { type: "set-game"; game: Game }
   | { type: "set-preset"; presetId: string }
@@ -18,6 +28,10 @@ type Action =
   | { type: "toggle-sound" }
   | { type: "toggle-always-on-top" }
   | { type: "toggle-stage-sound"; stage: "stage1" | "stage2" | "stage3" }
+  | { type: "set-theme"; theme: Theme }
+  | { type: "set-stage-threshold"; stage: "stage1" | "stage2" | "stage3"; thresholdSeconds: number }
+  | { type: "set-stage-color"; stage: "stage1" | "stage2" | "stage3"; color: string }
+  | { type: "set-stage-volume"; stage: "stage1" | "stage2" | "stage3"; volume: number }
   | { type: "assign-hotkey"; itemId: string; hotkey: string }
   | { type: "clear-hotkey-conflict" }
   | { type: "set-display-mode"; displayMode: AppSettings["displayMode"] }
@@ -88,6 +102,30 @@ function getSpawnMsByItemId(state: AppState, itemId: string): number | null {
 }
 
 export function appReducer(state: AppState, action: Action): AppState {
+  if (action.type === "hydrate") {
+    const isValidPreset =
+      action.payload.presetId === "custom" ||
+      getPresetsByGame(action.payload.game).some((entry) => entry.id === action.payload.presetId);
+
+    if (!isValidPreset) {
+      return state;
+    }
+
+    return {
+      ...state,
+      game: action.payload.game,
+      presetId: action.payload.presetId,
+      customItemTypes: action.payload.customItemTypes,
+      items: action.payload.items,
+      settings: action.payload.settings,
+      timers: {},
+      gameClockOffsetMs: 0,
+      gameClockRunning: false,
+      gameClockStartAt: null,
+      hotkeyConflict: null,
+    };
+  }
+
   if (action.type === "set-page") {
     return { ...state, page: action.page };
   }
@@ -171,6 +209,57 @@ export function appReducer(state: AppState, action: Action): AppState {
         [action.stage]: {
           ...state.settings[action.stage],
           soundEnabled: !state.settings[action.stage].soundEnabled,
+        },
+      },
+    };
+  }
+
+  if (action.type === "set-theme") {
+    return {
+      ...state,
+      settings: {
+        ...state.settings,
+        theme: action.theme,
+      },
+    };
+  }
+
+  if (action.type === "set-stage-threshold") {
+    const value = Math.max(1, Math.floor(action.thresholdSeconds));
+    return {
+      ...state,
+      settings: {
+        ...state.settings,
+        [action.stage]: {
+          ...state.settings[action.stage],
+          thresholdSeconds: value,
+        },
+      },
+    };
+  }
+
+  if (action.type === "set-stage-color") {
+    return {
+      ...state,
+      settings: {
+        ...state.settings,
+        [action.stage]: {
+          ...state.settings[action.stage],
+          color: action.color,
+        },
+      },
+    };
+  }
+
+  if (action.type === "set-stage-volume") {
+    const value = Math.max(0, Math.min(1, action.volume));
+    return {
+      ...state,
+      settings: {
+        ...state.settings,
+        [action.stage]: {
+          ...state.settings[action.stage],
+          volume: value,
         },
       },
     };

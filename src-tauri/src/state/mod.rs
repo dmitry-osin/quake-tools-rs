@@ -48,6 +48,7 @@ pub enum TimerStatus {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ItemConfig {
     pub id: String,
     pub item_type: ItemType,
@@ -56,6 +57,7 @@ pub struct ItemConfig {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TimerEntry {
     pub status: TimerStatus,
     pub remaining_ms: i64,
@@ -65,6 +67,7 @@ pub struct TimerEntry {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AlertStageSettings {
     pub threshold_seconds: i32,
     pub color: String,
@@ -73,6 +76,7 @@ pub struct AlertStageSettings {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AppSettings {
     pub theme: Theme,
     pub idle_color: String,
@@ -86,6 +90,7 @@ pub struct AppSettings {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MapPreset {
     pub id: String,
     pub name: String,
@@ -93,12 +98,14 @@ pub struct MapPreset {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct HotkeyConflict {
     pub item_id: String,
     pub conflicts_with: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AppState {
     pub page: Page,
     pub nav_open: bool,

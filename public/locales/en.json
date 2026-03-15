@@ -59,7 +59,23 @@
   },
   "settings": {
     "title": "Settings",
-    "placeholder": "Theme, alerts, sound, and window options will be added in stage 8."
+    "theme": "Theme",
+    "displayMode": "Display mode",
+    "spawnTime": "Spawn Time",
+    "timeRemaining": "Time Remaining",
+    "sound": "Sound",
+    "globalSound": "Global sound",
+    "alertStages": "Alert stages",
+    "stage1": "Stage 1",
+    "stage2": "Stage 2",
+    "stage3": "Stage 3",
+    "stageSound": "Stage sound",
+    "threshold": "Threshold (sec)",
+    "color": "Color",
+    "volume": "Volume",
+    "window": "Window",
+    "alwaysOnTop": "Always on top",
+    "globalHook": "Global hook"
   },
   "about": {
     "title": "About",

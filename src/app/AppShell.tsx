@@ -4,6 +4,7 @@ import { register, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
 import { playStage1, playStage2, playStage3 } from "../audio/alertAudio";
 import { ALL_ITEM_TYPES, getPresetsByGame } from "../data/gameData";
 import { eventToHotkey, normalizeHotkeyInput, toPluginHotkey } from "../hotkeys/hotkeyUtils";
+import { loadPersistedState, savePersistedState, setAlwaysOnTop } from "../services/settingsPersistence";
 import { NavigationDrawer } from "../components/NavigationDrawer";
 import { TitleBar } from "../components/TitleBar";
 import { AboutPage } from "../pages/AboutPage";
@@ -18,7 +19,48 @@ export function AppShell() {
   const [state, dispatch] = useReducer(appReducer, initialAppState);
   const [nowMs, setNowMs] = useState(() => Date.now());
   const [globalHookError, setGlobalHookError] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState(false);
   const previousSecondsRef = useRef<Record<string, number>>({});
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const persisted = await loadPersistedState();
+        dispatch({ type: "hydrate", payload: persisted });
+      } catch {
+        // Ignore and keep defaults.
+      } finally {
+        setHydrated(true);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    const theme = state.settings.theme.toLowerCase();
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [state.settings.theme]);
+
+  useEffect(() => {
+    void setAlwaysOnTop(state.settings.alwaysOnTop);
+  }, [state.settings.alwaysOnTop]);
+
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      void savePersistedState({
+        game: state.game,
+        presetId: state.presetId,
+        customItemTypes: state.customItemTypes,
+        items: state.items,
+        settings: state.settings,
+      });
+    }, 250);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [hydrated, state.customItemTypes, state.game, state.items, state.presetId, state.settings]);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -161,7 +203,20 @@ export function AppShell() {
     }
 
     if (state.page === "Settings") {
-      return <SettingsPage />;
+      return (
+        <SettingsPage
+          settings={state.settings}
+          onSetTheme={(theme) => dispatch({ type: "set-theme", theme })}
+          onSetDisplayMode={(displayMode) => dispatch({ type: "set-display-mode", displayMode })}
+          onToggleSound={() => dispatch({ type: "toggle-sound" })}
+          onToggleStageSound={(stage) => dispatch({ type: "toggle-stage-sound", stage })}
+          onSetStageThreshold={(stage, thresholdSeconds) => dispatch({ type: "set-stage-threshold", stage, thresholdSeconds })}
+          onSetStageColor={(stage, color) => dispatch({ type: "set-stage-color", stage, color })}
+          onSetStageVolume={(stage, volume) => dispatch({ type: "set-stage-volume", stage, volume })}
+          onToggleAlwaysOnTop={() => dispatch({ type: "toggle-always-on-top" })}
+          onToggleGlobalHook={() => dispatch({ type: "toggle-global-hook" })}
+        />
+      );
     }
 
     if (state.page === "About") {
