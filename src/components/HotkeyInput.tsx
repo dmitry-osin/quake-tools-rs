@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { eventToHotkey, isValidHotkey } from "../hotkeys/hotkeyUtils";
 
 type HotkeyInputProps = {
@@ -9,6 +10,7 @@ type HotkeyInputProps = {
 };
 
 export function HotkeyInput({ itemId, itemLabel, hotkey, onAssign }: HotkeyInputProps) {
+  const { t } = useTranslation();
   const [capturing, setCapturing] = useState(false);
 
   return (
@@ -39,7 +41,7 @@ export function HotkeyInput({ itemId, itemLabel, hotkey, onAssign }: HotkeyInput
           setCapturing(false);
         }}
       >
-        {capturing ? "Press keys..." : hotkey}
+        {capturing ? t("main.pressKeys") : hotkey}
       </button>
     </div>
   );

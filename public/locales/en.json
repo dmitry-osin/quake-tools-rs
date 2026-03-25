@@ -30,6 +30,12 @@
     "hotkeyConflict": "Hotkey conflict",
     "dismiss": "Dismiss",
     "globalHookDenied": "Global hook is unavailable. Fallback to in-window hotkeys is active.",
+    "pressKeys": "Press keys...",
+    "confirmPickup": "Click to confirm pickup",
+    "ql": "Quake Live",
+    "qc": "Quake Champions",
+    "on": "On",
+    "off": "Off",
     "mapPreset": "Map preset",
     "customPreset": "Custom",
     "customItems": "Custom item pool",
@@ -79,6 +85,17 @@
   },
   "about": {
     "title": "About",
-    "placeholder": "Author, repository, and version details will be added in stage 9."
+    "author": "Author",
+    "repository": "Repository",
+    "version": "Version",
+    "stack": "Technology stack",
+    "respawnRules": "Respawn rules",
+    "game": "Game",
+    "rule": "Rule",
+    "mapPresets": "Map presets",
+    "ql": "Quake Live",
+    "qc": "Quake Champions",
+    "qlRule": "Armor 25s, Health and Mega 35s",
+    "qcRule": "All tracked items 30s"
   }
 }

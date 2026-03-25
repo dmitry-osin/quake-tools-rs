@@ -1,4 +1,5 @@
 import { Heart, HeartPulse, Shield } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type TimerCardProps = {
   label: string;
@@ -27,6 +28,7 @@ export function TimerCard({
   effectClassName,
   onActivate,
 }: TimerCardProps) {
+  const { t } = useTranslation();
   const iconNode =
     icon === "armor" ? (
       <Shield size={16} color={color} />
@@ -72,7 +74,7 @@ export function TimerCard({
 
       {status === "Expired" ? (
         <div className="absolute inset-0 grid place-items-center rounded-lg bg-black/55 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--t1)]">
-          Click to confirm pickup
+          {t("main.confirmPickup")}
         </div>
       ) : null}
     </button>

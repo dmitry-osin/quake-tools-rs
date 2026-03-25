@@ -117,14 +117,14 @@ export function MainPage({
             className={game === "QuakeLive" ? "nav-item nav-item-active" : "nav-item"}
             onClick={() => onSelectGame("QuakeLive")}
           >
-            Quake Live
+            {t("main.ql")}
           </button>
           <button
             type="button"
             className={game === "QuakeChampions" ? "nav-item nav-item-active" : "nav-item"}
             onClick={() => onSelectGame("QuakeChampions")}
           >
-            Quake Champions
+            {t("main.qc")}
           </button>
         </div>
 
@@ -212,7 +212,7 @@ export function MainPage({
         <div className="space-y-2 text-sm">
           <div className="flex items-center justify-between rounded border border-[var(--border2)] bg-[var(--surface2)] px-2 py-1">
             <span>{t("main.globalSound")}</span>
-            <span className={soundEnabled ? "text-emerald-400" : "text-[var(--t3)]"}>{soundEnabled ? "On" : "Off"}</span>
+            <span className={soundEnabled ? "text-emerald-400" : "text-[var(--t3)]"}>{soundEnabled ? t("main.on") : t("main.off")}</span>
           </div>
 
           {([
