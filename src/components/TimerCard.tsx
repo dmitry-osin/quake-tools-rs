@@ -9,6 +9,7 @@ type TimerCardProps = {
   spawnSeconds: number;
   status: "Idle" | "Running" | "Expired";
   displayValue: string;
+  remainingLabel?: string;
   progressPercent: number;
   alertColor: string | null;
   effectClassName: string;
@@ -23,6 +24,7 @@ export function TimerCard({
   spawnSeconds,
   status,
   displayValue,
+  remainingLabel,
   progressPercent,
   alertColor,
   effectClassName,
@@ -64,7 +66,10 @@ export function TimerCard({
       <div className="text-2xl font-semibold tabular-nums" style={textStyle}>
         {displayValue}
       </div>
-      <div className="mt-1 text-xs text-[var(--t3)]">Spawn: {spawnSeconds}s</div>
+      <div className="mt-1 flex items-center justify-between text-xs text-[var(--t3)]">
+        <span>Spawn: {spawnSeconds}s</span>
+        {remainingLabel ? <span className="tabular-nums">{remainingLabel}</span> : null}
+      </div>
       <div className="mt-2 h-1.5 overflow-hidden rounded bg-[var(--border2)]">
         <div
           className="h-full rounded transition-[width] duration-100"

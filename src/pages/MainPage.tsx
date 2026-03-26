@@ -15,7 +15,6 @@ type MainPageProps = {
   hotkeyConflict: HotkeyConflict | null;
   timers: Record<string, TimerEntry>;
   displayMode: DisplayMode;
-  soundEnabled: boolean;
   stage1: AlertStageSettings;
   stage2: AlertStageSettings;
   stage3: AlertStageSettings;
@@ -28,7 +27,6 @@ type MainPageProps = {
   onSetDisplayMode: (displayMode: DisplayMode) => void;
   onAssignHotkey: (itemId: string, hotkey: string) => void;
   onClearHotkeyConflict: () => void;
-  onToggleStageSound: (stage: "stage1" | "stage2" | "stage3") => void;
   onToggleGameClock: () => void;
   onResetGameClock: () => void;
   onActivateItem: (itemId: string) => void;
@@ -87,7 +85,6 @@ export function MainPage({
   hotkeyConflict,
   timers,
   displayMode,
-  soundEnabled,
   stage1,
   stage2,
   stage3,
@@ -100,7 +97,6 @@ export function MainPage({
   onSetDisplayMode,
   onAssignHotkey,
   onClearHotkeyConflict,
-  onToggleStageSound,
   onToggleGameClock,
   onResetGameClock,
   onActivateItem,
@@ -189,6 +185,9 @@ export function MainPage({
 
       <div className="panel">
         <h2 className="panel-title">{t("main.displayMode")}</h2>
+        {displayMode === "SpawnTime" && !gameClockRunning ? (
+          <div className="mb-2 text-xs text-amber-300">{t("main.spawnModeHint")}</div>
+        ) : null}
         <div className="flex gap-2">
           <button
             type="button"
@@ -204,35 +203,6 @@ export function MainPage({
           >
             {t("main.timeRemaining")}
           </button>
-        </div>
-      </div>
-
-      <div className="panel">
-        <h2 className="panel-title">{t("main.alertAudio")}</h2>
-        <div className="space-y-2 text-sm">
-          <div className="flex items-center justify-between rounded border border-[var(--border2)] bg-[var(--surface2)] px-2 py-1">
-            <span>{t("main.globalSound")}</span>
-            <span className={soundEnabled ? "text-emerald-400" : "text-[var(--t3)]"}>{soundEnabled ? t("main.on") : t("main.off")}</span>
-          </div>
-
-          {([
-            { key: "stage1", label: t("main.stage1") },
-            { key: "stage2", label: t("main.stage2") },
-            { key: "stage3", label: t("main.stage3") },
-          ] as const).map((entry) => {
-            const enabled =
-              entry.key === "stage1" ? stage1.soundEnabled : entry.key === "stage2" ? stage2.soundEnabled : stage3.soundEnabled;
-
-            return (
-              <label
-                key={entry.key}
-                className="flex cursor-pointer items-center justify-between rounded border border-[var(--border2)] bg-[var(--surface2)] px-2 py-1"
-              >
-                <span>{entry.label}</span>
-                <input type="checkbox" checked={enabled} onChange={() => onToggleStageSound(entry.key)} />
-              </label>
-            );
-          })}
         </div>
       </div>
 
@@ -271,7 +241,10 @@ export function MainPage({
               ? "--"
               : displayMode === "TimeRemaining"
                 ? String(Math.ceil(remainingMs / 1000))
-                : formatSpawnAt(timer?.spawnAtGameMs ?? gameClockMs);
+                : gameClockRunning
+                  ? formatSpawnAt(timer?.spawnAtGameMs ?? gameClockMs)
+                  : String(Math.ceil(remainingMs / 1000));
+          const remainingLabel = status === "Idle" ? undefined : `${t("main.remainingShort")} ${Math.ceil(remainingMs / 1000)}s`;
           const stageState = resolveStageState(status, remainingMs, stage1, stage2, stage3);
 
           return (
@@ -284,6 +257,7 @@ export function MainPage({
               spawnSeconds={item.spawnSeconds}
               status={status}
               displayValue={displayValue}
+              remainingLabel={remainingLabel}
               progressPercent={progressPercent}
               alertColor={stageState.color}
               effectClassName={stageState.effectClassName}

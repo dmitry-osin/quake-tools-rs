@@ -240,13 +240,11 @@ export function AppShell() {
         stage1={state.settings.stage1}
         stage2={state.settings.stage2}
         stage3={state.settings.stage3}
-        soundEnabled={state.settings.soundEnabled}
         gameClockMs={gameClockMs}
         gameClockRunning={state.gameClockRunning}
         onSetDisplayMode={(displayMode) => dispatch({ type: "set-display-mode", displayMode })}
         onAssignHotkey={(itemId, hotkey) => dispatch({ type: "assign-hotkey", itemId, hotkey })}
         onClearHotkeyConflict={() => dispatch({ type: "clear-hotkey-conflict" })}
-        onToggleStageSound={(stage) => dispatch({ type: "toggle-stage-sound", stage })}
         onToggleGameClock={() => dispatch({ type: "toggle-game-clock", nowMs })}
         onResetGameClock={() => dispatch({ type: "reset-game-clock" })}
         onActivateItem={(itemId) => dispatch({ type: "activate-item", itemId, nowMs })}
