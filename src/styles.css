@@ -76,6 +76,12 @@ body {
   color: var(--foreground);
 }
 
+body.release-locked,
+body.release-locked * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 @keyframes timer-pulse-slow-keyframe {
   0%,
   100% {

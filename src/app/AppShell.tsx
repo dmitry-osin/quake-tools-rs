@@ -36,6 +36,22 @@ export function AppShell() {
   }, []);
 
   useEffect(() => {
+    const preventContextMenu = (event: MouseEvent) => {
+      event.preventDefault();
+    };
+
+    if (!state.settings.developerMode) {
+      document.body.classList.add("release-locked");
+      window.addEventListener("contextmenu", preventContextMenu);
+    }
+
+    return () => {
+      document.body.classList.remove("release-locked");
+      window.removeEventListener("contextmenu", preventContextMenu);
+    };
+  }, [state.settings.developerMode]);
+
+  useEffect(() => {
     const theme = state.settings.theme.toLowerCase();
     document.documentElement.setAttribute("data-theme", theme);
   }, [state.settings.theme]);
@@ -206,9 +222,14 @@ export function AppShell() {
       return (
         <SettingsPage
           settings={state.settings}
+          items={state.items}
+          hotkeyConflict={state.hotkeyConflict}
           onSetTheme={(theme) => dispatch({ type: "set-theme", theme })}
           onSetDisplayMode={(displayMode) => dispatch({ type: "set-display-mode", displayMode })}
           onToggleSound={() => dispatch({ type: "toggle-sound" })}
+          onToggleDeveloperMode={() => dispatch({ type: "toggle-developer-mode" })}
+          onAssignHotkey={(itemId, hotkey) => dispatch({ type: "assign-hotkey", itemId, hotkey })}
+          onClearHotkeyConflict={() => dispatch({ type: "clear-hotkey-conflict" })}
           onToggleStageSound={(stage) => dispatch({ type: "toggle-stage-sound", stage })}
           onSetStageThreshold={(stage, thresholdSeconds) => dispatch({ type: "set-stage-threshold", stage, thresholdSeconds })}
           onSetStageColor={(stage, color) => dispatch({ type: "set-stage-color", stage, color })}
@@ -230,7 +251,6 @@ export function AppShell() {
         customItemTypes={state.customItemTypes}
         presets={presets}
         items={state.items}
-        hotkeyConflict={state.hotkeyConflict}
         allItemTypes={ALL_ITEM_TYPES}
         onSelectGame={(game: Game) => dispatch({ type: "set-game", game })}
         onSelectPreset={(presetId) => dispatch({ type: "set-preset", presetId })}
@@ -243,8 +263,6 @@ export function AppShell() {
         gameClockMs={gameClockMs}
         gameClockRunning={state.gameClockRunning}
         onSetDisplayMode={(displayMode) => dispatch({ type: "set-display-mode", displayMode })}
-        onAssignHotkey={(itemId, hotkey) => dispatch({ type: "assign-hotkey", itemId, hotkey })}
-        onClearHotkeyConflict={() => dispatch({ type: "clear-hotkey-conflict" })}
         onToggleGameClock={() => dispatch({ type: "toggle-game-clock", nowMs })}
         onResetGameClock={() => dispatch({ type: "reset-game-clock" })}
         onActivateItem={(itemId) => dispatch({ type: "activate-item", itemId, nowMs })}

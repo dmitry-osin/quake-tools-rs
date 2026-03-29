@@ -1,11 +1,19 @@
 import { useTranslation } from "react-i18next";
+import { HotkeyInput } from "../components/HotkeyInput";
+import { ITEM_META } from "../data/gameData";
+import type { HotkeyConflict, ItemConfig } from "../types/domain";
 import type { AppSettings, Theme } from "../types/domain";
 
 type SettingsPageProps = {
   settings: AppSettings;
+  items: ItemConfig[];
+  hotkeyConflict: HotkeyConflict | null;
   onSetTheme: (theme: Theme) => void;
   onSetDisplayMode: (mode: AppSettings["displayMode"]) => void;
   onToggleSound: () => void;
+  onToggleDeveloperMode: () => void;
+  onAssignHotkey: (itemId: string, hotkey: string) => void;
+  onClearHotkeyConflict: () => void;
   onToggleStageSound: (stage: "stage1" | "stage2" | "stage3") => void;
   onSetStageThreshold: (stage: "stage1" | "stage2" | "stage3", thresholdSeconds: number) => void;
   onSetStageColor: (stage: "stage1" | "stage2" | "stage3", color: string) => void;
@@ -16,9 +24,14 @@ type SettingsPageProps = {
 
 export function SettingsPage({
   settings,
+  items,
+  hotkeyConflict,
   onSetTheme,
   onSetDisplayMode,
   onToggleSound,
+  onToggleDeveloperMode,
+  onAssignHotkey,
+  onClearHotkeyConflict,
   onToggleStageSound,
   onSetStageThreshold,
   onSetStageColor,
@@ -81,6 +94,29 @@ export function SettingsPage({
       </section>
 
       <section className="panel space-y-2">
+        <h2 className="panel-title">{t("settings.hotkeys")}</h2>
+        {hotkeyConflict ? (
+          <div className="mb-2 rounded border border-rose-700/80 bg-rose-950/30 px-2 py-1 text-xs text-rose-200" role="alert">
+            {t("settings.hotkeyConflict")}: {hotkeyConflict.itemId} - {hotkeyConflict.conflictsWith}
+            <button className="ml-2 underline" type="button" onClick={onClearHotkeyConflict}>
+              {t("settings.dismiss")}
+            </button>
+          </div>
+        ) : null}
+        <div className="grid gap-2">
+          {items.map((item) => (
+            <HotkeyInput
+              key={item.id}
+              itemId={item.id}
+              itemLabel={ITEM_META[item.itemType].label}
+              hotkey={item.hotkey}
+              onAssign={onAssignHotkey}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="panel space-y-2">
         <h2 className="panel-title">{t("settings.alertStages")}</h2>
         {stageEntries.map((stage) => (
           <div key={stage.key} className="space-y-2 rounded border border-[var(--border2)] bg-[var(--surface2)] p-2">
@@ -126,6 +162,10 @@ export function SettingsPage({
         <label className="flex items-center justify-between rounded border border-[var(--border2)] bg-[var(--surface2)] px-2 py-1 text-sm">
           <span>{t("settings.globalHook")}</span>
           <input type="checkbox" checked={settings.globalHookActive} onChange={onToggleGlobalHook} />
+        </label>
+        <label className="flex items-center justify-between rounded border border-[var(--border2)] bg-[var(--surface2)] px-2 py-1 text-sm">
+          <span>{t("settings.developerMode")}</span>
+          <input type="checkbox" checked={settings.developerMode} onChange={onToggleDeveloperMode} />
         </label>
       </section>
     </section>

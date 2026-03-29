@@ -34,6 +34,7 @@ export interface AlertStageSettings {
 
 export interface AppSettings {
   theme: Theme;
+  developerMode: boolean;
   idleColor: string;
   stage1: AlertStageSettings;
   stage2: AlertStageSettings;

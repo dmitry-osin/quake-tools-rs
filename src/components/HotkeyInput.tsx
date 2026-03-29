@@ -41,7 +41,7 @@ export function HotkeyInput({ itemId, itemLabel, hotkey, onAssign }: HotkeyInput
           setCapturing(false);
         }}
       >
-        {capturing ? t("main.pressKeys") : hotkey}
+        {capturing ? t("settings.pressKeys") : hotkey}
       </button>
     </div>
   );

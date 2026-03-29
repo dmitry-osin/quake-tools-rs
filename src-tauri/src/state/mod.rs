@@ -79,6 +79,8 @@ pub struct AlertStageSettings {
 #[serde(rename_all = "camelCase")]
 pub struct AppSettings {
     pub theme: Theme,
+    #[serde(default)]
+    pub developer_mode: bool,
     pub idle_color: String,
     pub stage1: AlertStageSettings,
     pub stage2: AlertStageSettings,
@@ -125,6 +127,7 @@ impl Default for AppSettings {
     fn default() -> Self {
         Self {
             theme: Theme::Dark,
+            developer_mode: false,
             idle_color: "#4b5563".to_string(),
             stage1: AlertStageSettings {
                 threshold_seconds: 15,
