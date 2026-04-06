@@ -155,9 +155,17 @@ export function AppShell() {
         return;
       }
 
+      if (state.page !== "Main") {
+        return;
+      }
+
       try {
         for (const item of state.items) {
           await register(toPluginHotkey(item.hotkey), () => {
+            if (state.page !== "Main") {
+              return;
+            }
+
             dispatch({ type: "activate-item", itemId: item.id, nowMs: Date.now() });
           });
         }
@@ -179,7 +187,7 @@ export function AppShell() {
       active = false;
       void unregisterAll();
     };
-  }, [state.items, state.settings.globalHookActive, t]);
+  }, [state.items, state.page, state.settings.globalHookActive, t]);
 
   useEffect(() => {
     if (state.settings.globalHookActive && !globalHookError) {
@@ -187,6 +195,10 @@ export function AppShell() {
     }
 
     const listener = (event: KeyboardEvent) => {
+      if (state.page !== "Main") {
+        return;
+      }
+
       const element = event.target as HTMLElement | null;
       if (element && (element.tagName === "INPUT" || element.tagName === "TEXTAREA" || element.getAttribute("contenteditable") === "true")) {
         return;
@@ -208,7 +220,7 @@ export function AppShell() {
 
     window.addEventListener("keydown", listener);
     return () => window.removeEventListener("keydown", listener);
-  }, [globalHookError, state.items, state.settings.globalHookActive]);
+  }, [globalHookError, state.items, state.page, state.settings.globalHookActive]);
 
   const presets = useMemo(() => getPresetsByGame(state.game), [state.game]);
   const gameClockMs = useMemo(() => selectGameClockMs(state, nowMs), [nowMs, state]);

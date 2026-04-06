@@ -25,7 +25,7 @@
     "spawnModeHint": "Spawn Time uses game clock. Start the game clock to see time flow.",
     "remainingShort": "Rem",
     "globalHookDenied": "Global hook is unavailable. Fallback to in-window hotkeys is active.",
-    "confirmPickup": "Click to confirm pickup",
+    "confirmPickup": "Ready",
     "ql": "Quake Live",
     "qc": "Quake Champions",
     "mapPreset": "Map preset",
