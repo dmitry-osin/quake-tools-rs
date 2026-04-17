@@ -51,6 +51,7 @@ function nextQuestion(game: Game, previous: Question | null): Question {
 
 export function TrainerPage({ game }: TrainerPageProps) {
   const { t } = useTranslation();
+  const [trainerGame, setTrainerGame] = useState<Game>(game);
   const [active, setActive] = useState(false);
   const [question, setQuestion] = useState<Question | null>(null);
   const [answer, setAnswer] = useState("");
@@ -62,7 +63,17 @@ export function TrainerPage({ game }: TrainerPageProps) {
 
   const start = () => {
     setActive(true);
-    setQuestion(nextQuestion(game, null));
+    setQuestion(nextQuestion(trainerGame, null));
+    setAnswer("");
+    setLastResult(null);
+    setCorrect(0);
+    setTotal(0);
+  };
+
+  const switchGame = (nextGame: Game) => {
+    setTrainerGame(nextGame);
+    setActive(false);
+    setQuestion(null);
     setAnswer("");
     setLastResult(null);
     setCorrect(0);
@@ -96,7 +107,7 @@ export function TrainerPage({ game }: TrainerPageProps) {
     }
 
     setLastResult({ isCorrect, userSec, correctSec: question.correctSec });
-    setQuestion(nextQuestion(game, question));
+    setQuestion(nextQuestion(trainerGame, question));
     setAnswer("");
   };
 
@@ -105,6 +116,23 @@ export function TrainerPage({ game }: TrainerPageProps) {
       <div className="flex items-center justify-between">
         <h2 className="panel-title mb-0">{t("trainer.title")}</h2>
         <span className="text-sm font-semibold text-[var(--t2)]">{correct} / {total}</span>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          className={trainerGame === "QuakeLive" ? "nav-item nav-item-active" : "nav-item"}
+          onClick={() => switchGame("QuakeLive")}
+        >
+          {t("main.ql")}
+        </button>
+        <button
+          type="button"
+          className={trainerGame === "QuakeChampions" ? "nav-item nav-item-active" : "nav-item"}
+          onClick={() => switchGame("QuakeChampions")}
+        >
+          {t("main.qc")}
+        </button>
       </div>
 
       <progress className="h-2 w-full" value={accuracy} max={100} />

@@ -42,7 +42,7 @@ type Action =
   | { type: "tick"; nowMs: number };
 
 const defaultSettings: AppSettings = {
-  theme: "Dark",
+  theme: "Neon",
   developerMode: false,
   idleColor: "#4b5563",
   stage1: { thresholdSeconds: 15, color: "#f59e0b", soundEnabled: true, volume: 0.8 },

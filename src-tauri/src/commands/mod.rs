@@ -39,20 +39,20 @@ fn validate_persisted_state(state: &PersistedState) -> bool {
 }
 
 fn default_persisted_state() -> PersistedState {
-    let default_item_types = vec![ItemType::RedArmor, ItemType::YellowArmor, ItemType::MegaHealth];
+    let default_item_types = vec![ItemType::MegaHealth, ItemType::RedArmor, ItemType::YellowArmor];
     let default_items = default_item_types
         .iter()
         .map(|item_type| ItemConfig {
             id: format!("{item_type:?}"),
-            item_type: *item_type,
-            spawn_seconds: game_data::get_spawn_seconds(Game::QuakeLive, *item_type),
-            hotkey: match item_type {
-                ItemType::RedArmor => "F1".to_string(),
-                ItemType::YellowArmor => "F2".to_string(),
-                ItemType::GreenArmor => "F3".to_string(),
-                ItemType::MegaHealth => "F4".to_string(),
-                ItemType::Health => "F5".to_string(),
-            },
+                item_type: *item_type,
+                spawn_seconds: game_data::get_spawn_seconds(Game::QuakeLive, *item_type),
+                hotkey: match item_type {
+                    ItemType::MegaHealth => "F1".to_string(),
+                    ItemType::RedArmor => "F2".to_string(),
+                    ItemType::YellowArmor => "F3".to_string(),
+                    ItemType::GreenArmor => "F4".to_string(),
+                    ItemType::Health => "F5".to_string(),
+                },
         })
         .collect::<Vec<_>>();
 

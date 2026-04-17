@@ -126,7 +126,7 @@ pub struct AppState {
 impl Default for AppSettings {
     fn default() -> Self {
         Self {
-            theme: Theme::Dark,
+            theme: Theme::Neon,
             developer_mode: false,
             idle_color: "#4b5563".to_string(),
             stage1: AlertStageSettings {

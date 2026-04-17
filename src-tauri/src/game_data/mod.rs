@@ -23,7 +23,7 @@ pub fn get_spawn_seconds(game: Game, item_type: ItemType) -> i32 {
 }
 
 pub fn quake_live_presets() -> Vec<MapPreset> {
-    let map_items = vec![ItemType::RedArmor, ItemType::YellowArmor, ItemType::MegaHealth];
+    let map_items = vec![ItemType::MegaHealth, ItemType::RedArmor, ItemType::YellowArmor];
 
     vec![
         MapPreset {
@@ -75,7 +75,7 @@ pub fn quake_live_presets() -> Vec<MapPreset> {
 }
 
 pub fn quake_champions_presets() -> Vec<MapPreset> {
-    let default_items = vec![ItemType::RedArmor, ItemType::YellowArmor, ItemType::MegaHealth];
+    let default_items = vec![ItemType::MegaHealth, ItemType::RedArmor, ItemType::YellowArmor];
 
     vec![
         MapPreset {
@@ -136,7 +136,7 @@ pub fn quake_champions_presets() -> Vec<MapPreset> {
         MapPreset {
             id: "the-longest-yard".to_string(),
             name: "The Longest Yard".to_string(),
-            items: vec![ItemType::RedArmor, ItemType::MegaHealth],
+            items: vec![ItemType::MegaHealth, ItemType::RedArmor],
         },
         MapPreset {
             id: "vale-of-pnath".to_string(),

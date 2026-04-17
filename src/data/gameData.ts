@@ -3,10 +3,10 @@ import type { Game, ItemConfig, ItemType, MapPreset } from "../types/domain";
 export const ALL_ITEM_TYPES: ItemType[] = ["RedArmor", "YellowArmor", "GreenArmor", "MegaHealth", "Health"];
 
 export const DEFAULT_HOTKEY_BY_ITEM: Record<ItemType, string> = {
-  RedArmor: "F1",
-  YellowArmor: "F2",
-  GreenArmor: "F3",
-  MegaHealth: "F4",
+  MegaHealth: "F1",
+  RedArmor: "F2",
+  YellowArmor: "F3",
+  GreenArmor: "F4",
   Health: "F5",
 };
 
@@ -18,8 +18,8 @@ export const ITEM_META: Record<ItemType, { label: string; color: string; icon: "
   Health: { label: "Health", color: "#3498db", icon: "health" },
 };
 
-const QL_ITEMS: ItemType[] = ["RedArmor", "YellowArmor", "MegaHealth"];
-const QC_ITEMS: ItemType[] = ["RedArmor", "YellowArmor", "MegaHealth"];
+const QL_ITEMS: ItemType[] = ["MegaHealth", "RedArmor", "YellowArmor"];
+const QC_ITEMS: ItemType[] = ["MegaHealth", "RedArmor", "YellowArmor"];
 
 export const QUAKE_LIVE_PRESETS: MapPreset[] = [
   { id: "aerowalk", name: "Aerowalk", items: QL_ITEMS },

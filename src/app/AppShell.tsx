@@ -222,6 +222,36 @@ export function AppShell() {
     return () => window.removeEventListener("keydown", listener);
   }, [globalHookError, state.items, state.page, state.settings.globalHookActive]);
 
+  useEffect(() => {
+    const blockFindNext = (event: KeyboardEvent) => {
+      if (event.key !== "F3") {
+        return;
+      }
+
+      if (document.body.dataset.hotkeyCaptureActive === "true") {
+        return;
+      }
+
+      event.preventDefault();
+
+      const fallbackActive = !state.settings.globalHookActive || Boolean(globalHookError);
+      if (!fallbackActive || state.page !== "Main") {
+        return;
+      }
+
+      const item = state.items.find((entry) => normalizeHotkeyInput(entry.hotkey) === "F3");
+      if (!item) {
+        return;
+      }
+
+      event.stopPropagation();
+      dispatch({ type: "activate-item", itemId: item.id, nowMs: Date.now() });
+    };
+
+    window.addEventListener("keydown", blockFindNext, true);
+    return () => window.removeEventListener("keydown", blockFindNext, true);
+  }, [globalHookError, state.items, state.page, state.settings.globalHookActive]);
+
   const presets = useMemo(() => getPresetsByGame(state.game), [state.game]);
   const gameClockMs = useMemo(() => selectGameClockMs(state, nowMs), [nowMs, state]);
 
