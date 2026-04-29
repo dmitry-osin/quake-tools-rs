@@ -76,7 +76,21 @@
     "window": "Window",
     "alwaysOnTop": "Always on top",
     "globalHook": "Global hook",
-    "developerMode": "Developer mode"
+    "developerMode": "Developer mode",
+    "showGuide": "Show guide",
+    "enableGuideOnStartup": "Enable startup guide again",
+    "guideEnabled": "Guide shows on startup",
+    "guideDisabled": "Guide disabled on startup"
+  },
+  "guide": {
+    "title": "Quick guide",
+    "intro": "Before playing, check these key points:",
+    "hook": "Enable Global Hook to trigger timers outside the app window.",
+    "settings": "In Settings you can customize stage thresholds and colors.",
+    "hotkeys": "You can remap hotkeys in Settings and resolve conflicts there.",
+    "trainer": "Use Trainer mode to practice fast spawn-time calculations.",
+    "gotIt": "Got it",
+    "neverShowAgain": "Never show again"
   },
   "about": {
     "title": "About",

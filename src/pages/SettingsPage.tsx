@@ -12,6 +12,8 @@ type SettingsPageProps = {
   onSetDisplayMode: (mode: AppSettings["displayMode"]) => void;
   onToggleSound: () => void;
   onToggleDeveloperMode: () => void;
+  onShowGuide: () => void;
+  onEnableGuideOnStartup: () => void;
   onAssignHotkey: (itemId: string, hotkey: string) => void;
   onClearHotkeyConflict: () => void;
   onToggleStageSound: (stage: "stage1" | "stage2" | "stage3") => void;
@@ -30,6 +32,8 @@ export function SettingsPage({
   onSetDisplayMode,
   onToggleSound,
   onToggleDeveloperMode,
+  onShowGuide,
+  onEnableGuideOnStartup,
   onAssignHotkey,
   onClearHotkeyConflict,
   onToggleStageSound,
@@ -167,6 +171,19 @@ export function SettingsPage({
           <span>{t("settings.developerMode")}</span>
           <input type="checkbox" checked={settings.developerMode} onChange={onToggleDeveloperMode} />
         </label>
+        <div className="flex items-center justify-between rounded border border-[var(--border2)] bg-[var(--surface2)] px-2 py-1 text-sm">
+          <span>{settings.guideNeverShowAgain ? t("settings.guideDisabled") : t("settings.guideEnabled")}</span>
+          <div className="flex items-center gap-2">
+            {settings.guideNeverShowAgain ? (
+              <button type="button" className="nav-item w-auto" onClick={onEnableGuideOnStartup}>
+                {t("settings.enableGuideOnStartup")}
+              </button>
+            ) : null}
+            <button type="button" className="nav-item w-auto" onClick={onShowGuide}>
+              {t("settings.showGuide")}
+            </button>
+          </div>
+        </div>
       </section>
     </section>
   );

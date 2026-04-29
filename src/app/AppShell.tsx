@@ -5,6 +5,7 @@ import { playStage1, playStage2, playStage3 } from "../audio/alertAudio";
 import { ALL_ITEM_TYPES, getPresetsByGame } from "../data/gameData";
 import { eventToHotkey, normalizeHotkeyInput, toPluginHotkey } from "../hotkeys/hotkeyUtils";
 import { loadPersistedState, savePersistedState, setAlwaysOnTop } from "../services/settingsPersistence";
+import { GuideModal } from "../components/GuideModal";
 import { NavigationDrawer } from "../components/NavigationDrawer";
 import { TitleBar } from "../components/TitleBar";
 import { AboutPage } from "../pages/AboutPage";
@@ -20,6 +21,7 @@ export function AppShell() {
   const [nowMs, setNowMs] = useState(() => Date.now());
   const [globalHookError, setGlobalHookError] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
   const previousSecondsRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
@@ -59,6 +61,16 @@ export function AppShell() {
   useEffect(() => {
     void setAlwaysOnTop(state.settings.alwaysOnTop);
   }, [state.settings.alwaysOnTop]);
+
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+
+    if (!state.settings.guideNeverShowAgain) {
+      setGuideOpen(true);
+    }
+  }, [hydrated, state.settings.guideNeverShowAgain]);
 
   useEffect(() => {
     if (!hydrated) {
@@ -270,6 +282,8 @@ export function AppShell() {
           onSetDisplayMode={(displayMode) => dispatch({ type: "set-display-mode", displayMode })}
           onToggleSound={() => dispatch({ type: "toggle-sound" })}
           onToggleDeveloperMode={() => dispatch({ type: "toggle-developer-mode" })}
+          onShowGuide={() => setGuideOpen(true)}
+          onEnableGuideOnStartup={() => dispatch({ type: "set-guide-never-show-again", value: false })}
           onAssignHotkey={(itemId, hotkey) => dispatch({ type: "assign-hotkey", itemId, hotkey })}
           onClearHotkeyConflict={() => dispatch({ type: "clear-hotkey-conflict" })}
           onToggleStageSound={(stage) => dispatch({ type: "toggle-stage-sound", stage })}
@@ -314,6 +328,16 @@ export function AppShell() {
 
   return (
     <div className="relative flex h-screen w-full overflow-hidden bg-[var(--background)] text-[var(--foreground)]">
+      <GuideModal
+        open={guideOpen}
+        onGotIt={() => {
+          setGuideOpen(false);
+        }}
+        onNeverShowAgain={() => {
+          dispatch({ type: "set-guide-never-show-again", value: true });
+          setGuideOpen(false);
+        }}
+      />
       <NavigationDrawer
         activePage={state.page}
         isOpen={state.navOpen}

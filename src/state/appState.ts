@@ -27,6 +27,7 @@ type Action =
   | { type: "set-global-hook"; active: boolean }
   | { type: "toggle-sound" }
   | { type: "toggle-developer-mode" }
+  | { type: "set-guide-never-show-again"; value: boolean }
   | { type: "toggle-always-on-top" }
   | { type: "toggle-stage-sound"; stage: "stage1" | "stage2" | "stage3" }
   | { type: "set-theme"; theme: Theme }
@@ -44,6 +45,7 @@ type Action =
 const defaultSettings: AppSettings = {
   theme: "Neon",
   developerMode: false,
+  guideNeverShowAgain: false,
   idleColor: "#4b5563",
   stage1: { thresholdSeconds: 15, color: "#f59e0b", soundEnabled: true, volume: 0.8 },
   stage2: { thresholdSeconds: 10, color: "#ef4444", soundEnabled: true, volume: 0.9 },
@@ -199,6 +201,16 @@ export function appReducer(state: AppState, action: Action): AppState {
       settings: {
         ...state.settings,
         developerMode: !state.settings.developerMode,
+      },
+    };
+  }
+
+  if (action.type === "set-guide-never-show-again") {
+    return {
+      ...state,
+      settings: {
+        ...state.settings,
+        guideNeverShowAgain: action.value,
       },
     };
   }

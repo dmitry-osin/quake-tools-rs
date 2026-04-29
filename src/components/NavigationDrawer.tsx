@@ -1,4 +1,6 @@
 import { useTranslation } from "react-i18next";
+import { CircleHelp, Home, Settings, Swords } from "lucide-react";
+import type { ReactNode } from "react";
 import { PAGES, type Page } from "../types/ui";
 
 type NavigationDrawerProps = {
@@ -10,6 +12,13 @@ type NavigationDrawerProps = {
 
 export function NavigationDrawer({ activePage, isOpen, onClose, onSelectPage }: NavigationDrawerProps) {
   const { t } = useTranslation();
+
+  const iconByPage: Record<Page, ReactNode> = {
+    Main: <Home size={14} />,
+    Trainer: <Swords size={14} />,
+    Settings: <Settings size={14} />,
+    About: <CircleHelp size={14} />,
+  };
 
   return (
     <>
@@ -29,7 +38,10 @@ export function NavigationDrawer({ activePage, isOpen, onClose, onSelectPage }: 
                 type="button"
                 onClick={() => onSelectPage(page)}
               >
-                {t(`navigation.${page.toLowerCase()}`)}
+                <span className="flex items-center gap-2">
+                  {iconByPage[page]}
+                  <span>{t(`navigation.${page.toLowerCase()}`)}</span>
+                </span>
               </button>
             </li>
           ))}

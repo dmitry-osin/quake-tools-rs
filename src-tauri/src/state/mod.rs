@@ -81,6 +81,8 @@ pub struct AppSettings {
     pub theme: Theme,
     #[serde(default)]
     pub developer_mode: bool,
+    #[serde(default)]
+    pub guide_never_show_again: bool,
     pub idle_color: String,
     pub stage1: AlertStageSettings,
     pub stage2: AlertStageSettings,
@@ -128,6 +130,7 @@ impl Default for AppSettings {
         Self {
             theme: Theme::Neon,
             developer_mode: false,
+            guide_never_show_again: false,
             idle_color: "#4b5563".to_string(),
             stage1: AlertStageSettings {
                 threshold_seconds: 15,
