@@ -63,6 +63,7 @@ export interface AppState {
   game: Game;
   presetId: string;
   customItemTypes: ItemType[];
+  hotkeysByItem: Record<ItemType, string>;
   items: ItemConfig[];
   timers: Record<string, TimerEntry>;
   settings: AppSettings;

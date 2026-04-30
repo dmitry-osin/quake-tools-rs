@@ -65,6 +65,8 @@
     "hotkeyConflict": "Hotkey conflict",
     "dismiss": "Dismiss",
     "pressKeys": "Press keys...",
+    "clearHotkey": "Clear",
+    "noHotkey": "Unassigned",
     "alertStages": "Alert stages",
     "stage1": "Stage 1",
     "stage2": "Stage 2",

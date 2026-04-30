@@ -2,8 +2,8 @@ import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { register, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
 import { playStage1, playStage2, playStage3 } from "../audio/alertAudio";
-import { ALL_ITEM_TYPES, getPresetsByGame } from "../data/gameData";
-import { eventToHotkey, normalizeHotkeyInput, toPluginHotkey } from "../hotkeys/hotkeyUtils";
+import { ALL_ITEM_TYPES, buildItemsWithHotkeys, getPresetsByGame } from "../data/gameData";
+import { eventToHotkey, isValidHotkey, normalizeHotkeyInput, toPluginHotkey } from "../hotkeys/hotkeyUtils";
 import { loadPersistedState, savePersistedState, setAlwaysOnTop } from "../services/settingsPersistence";
 import { GuideModal } from "../components/GuideModal";
 import { NavigationDrawer } from "../components/NavigationDrawer";
@@ -82,13 +82,14 @@ export function AppShell() {
         game: state.game,
         presetId: state.presetId,
         customItemTypes: state.customItemTypes,
+        hotkeysByItem: state.hotkeysByItem,
         items: state.items,
         settings: state.settings,
       });
     }, 250);
 
     return () => window.clearTimeout(timeoutId);
-  }, [hydrated, state.customItemTypes, state.game, state.items, state.presetId, state.settings]);
+  }, [hydrated, state.customItemTypes, state.game, state.hotkeysByItem, state.items, state.presetId, state.settings]);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -173,6 +174,11 @@ export function AppShell() {
 
       try {
         for (const item of state.items) {
+          const normalized = normalizeHotkeyInput(item.hotkey);
+          if (!isValidHotkey(normalized)) {
+            continue;
+          }
+
           await register(toPluginHotkey(item.hotkey), () => {
             if (state.page !== "Main") {
               return;
@@ -276,7 +282,7 @@ export function AppShell() {
       return (
         <SettingsPage
           settings={state.settings}
-          items={state.items}
+          items={buildItemsWithHotkeys(state.game, ALL_ITEM_TYPES, state.hotkeysByItem)}
           hotkeyConflict={state.hotkeyConflict}
           onSetTheme={(theme) => dispatch({ type: "set-theme", theme })}
           onSetDisplayMode={(displayMode) => dispatch({ type: "set-display-mode", displayMode })}
@@ -285,6 +291,7 @@ export function AppShell() {
           onShowGuide={() => setGuideOpen(true)}
           onEnableGuideOnStartup={() => dispatch({ type: "set-guide-never-show-again", value: false })}
           onAssignHotkey={(itemId, hotkey) => dispatch({ type: "assign-hotkey", itemId, hotkey })}
+          onClearHotkey={(itemId) => dispatch({ type: "clear-hotkey", itemId })}
           onClearHotkeyConflict={() => dispatch({ type: "clear-hotkey-conflict" })}
           onToggleStageSound={(stage) => dispatch({ type: "toggle-stage-sound", stage })}
           onSetStageThreshold={(stage, thresholdSeconds) => dispatch({ type: "set-stage-threshold", stage, thresholdSeconds })}

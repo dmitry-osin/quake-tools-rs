@@ -1,8 +1,19 @@
 use crate::game_data;
 use crate::state::{AppSettings, Game, ItemConfig, ItemType};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
+
+fn default_hotkeys_by_item() -> HashMap<ItemType, String> {
+    HashMap::from([
+        (ItemType::MegaHealth, "F1".to_string()),
+        (ItemType::RedArmor, "F2".to_string()),
+        (ItemType::YellowArmor, "F3".to_string()),
+        (ItemType::GreenArmor, "".to_string()),
+        (ItemType::Health, "".to_string()),
+    ])
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -10,6 +21,8 @@ pub struct PersistedState {
     pub game: Game,
     pub preset_id: String,
     pub custom_item_types: Vec<ItemType>,
+    #[serde(default = "default_hotkeys_by_item")]
+    pub hotkeys_by_item: HashMap<ItemType, String>,
     pub items: Vec<ItemConfig>,
     pub settings: AppSettings,
 }
@@ -40,19 +53,17 @@ fn validate_persisted_state(state: &PersistedState) -> bool {
 
 fn default_persisted_state() -> PersistedState {
     let default_item_types = vec![ItemType::MegaHealth, ItemType::RedArmor, ItemType::YellowArmor];
+    let hotkeys_by_item = default_hotkeys_by_item();
     let default_items = default_item_types
         .iter()
         .map(|item_type| ItemConfig {
             id: format!("{item_type:?}"),
-                item_type: *item_type,
-                spawn_seconds: game_data::get_spawn_seconds(Game::QuakeLive, *item_type),
-                hotkey: match item_type {
-                    ItemType::MegaHealth => "F1".to_string(),
-                    ItemType::RedArmor => "F2".to_string(),
-                    ItemType::YellowArmor => "F3".to_string(),
-                    ItemType::GreenArmor => "F4".to_string(),
-                    ItemType::Health => "F5".to_string(),
-                },
+            item_type: *item_type,
+            spawn_seconds: game_data::get_spawn_seconds(Game::QuakeLive, *item_type),
+            hotkey: hotkeys_by_item
+                .get(item_type)
+                .cloned()
+                .unwrap_or_else(|| "F5".to_string()),
         })
         .collect::<Vec<_>>();
 
@@ -60,6 +71,7 @@ fn default_persisted_state() -> PersistedState {
         game: Game::QuakeLive,
         preset_id: "aerowalk".to_string(),
         custom_item_types: Vec::new(),
+        hotkeys_by_item,
         items: default_items,
         settings: AppSettings::default(),
     }

@@ -1,5 +1,6 @@
 import {
-  buildItems,
+  buildItemsWithHotkeys,
+  DEFAULT_HOTKEY_BY_ITEM,
   firstPresetId,
   getPresetsByGame,
   resolveItemTypes,
@@ -15,6 +16,7 @@ type Action =
         game: Game;
         presetId: string;
         customItemTypes: ItemType[];
+        hotkeysByItem: Record<ItemType, string>;
         items: ItemConfig[];
         settings: AppSettings;
       };
@@ -35,6 +37,7 @@ type Action =
   | { type: "set-stage-color"; stage: "stage1" | "stage2" | "stage3"; color: string }
   | { type: "set-stage-volume"; stage: "stage1" | "stage2" | "stage3"; volume: number }
   | { type: "assign-hotkey"; itemId: string; hotkey: string }
+  | { type: "clear-hotkey"; itemId: string }
   | { type: "clear-hotkey-conflict" }
   | { type: "set-display-mode"; displayMode: AppSettings["displayMode"] }
   | { type: "toggle-game-clock"; nowMs: number }
@@ -66,7 +69,12 @@ export const initialAppState: AppState = {
   game: defaultGame,
   presetId: defaultPresetId,
   customItemTypes: defaultCustomItemTypes,
-  items: buildItems(defaultGame, resolveItemTypes(defaultGame, defaultPresetId, defaultCustomItemTypes)),
+  hotkeysByItem: { ...DEFAULT_HOTKEY_BY_ITEM },
+  items: buildItemsWithHotkeys(
+    defaultGame,
+    resolveItemTypes(defaultGame, defaultPresetId, defaultCustomItemTypes),
+    DEFAULT_HOTKEY_BY_ITEM,
+  ),
   timers: {},
   settings: defaultSettings,
   gameClockOffsetMs: 0,
@@ -83,7 +91,7 @@ function withItems(state: AppState, game: Game, presetId: string, customItemType
     game,
     presetId,
     customItemTypes,
-    items: buildItems(game, itemTypes),
+    items: buildItemsWithHotkeys(game, itemTypes, state.hotkeysByItem),
     timers: {},
   };
 }
@@ -120,7 +128,12 @@ export function appReducer(state: AppState, action: Action): AppState {
       game: action.payload.game,
       presetId: action.payload.presetId,
       customItemTypes: action.payload.customItemTypes,
-      items: action.payload.items,
+      hotkeysByItem: action.payload.hotkeysByItem,
+      items: buildItemsWithHotkeys(
+        action.payload.game,
+        resolveItemTypes(action.payload.game, action.payload.presetId, action.payload.customItemTypes),
+        action.payload.hotkeysByItem,
+      ),
       settings: action.payload.settings,
       timers: {},
       gameClockOffsetMs: 0,
@@ -295,28 +308,46 @@ export function appReducer(state: AppState, action: Action): AppState {
       return state;
     }
 
-    const conflict = state.items.find((entry) => entry.id !== action.itemId && normalizeHotkeyInput(entry.hotkey) === normalized);
-    if (conflict) {
+    const conflictEntry = (Object.keys(state.hotkeysByItem) as ItemType[]).find(
+      (itemType) => itemType !== action.itemId && normalizeHotkeyInput(state.hotkeysByItem[itemType]) === normalized,
+    );
+    if (conflictEntry) {
       return {
         ...state,
         hotkeyConflict: {
           itemId: action.itemId,
-          conflictsWith: conflict.id,
+          conflictsWith: conflictEntry,
         },
       };
     }
 
+    const nextHotkeysByItem: Record<ItemType, string> = {
+      ...state.hotkeysByItem,
+      [action.itemId]: normalized,
+    };
+
+    const itemTypes = resolveItemTypes(state.game, state.presetId, state.customItemTypes);
+
     return {
       ...state,
       hotkeyConflict: null,
-      items: state.items.map((entry) =>
-        entry.id === action.itemId
-          ? {
-              ...entry,
-              hotkey: normalized,
-            }
-          : entry,
-      ),
+      hotkeysByItem: nextHotkeysByItem,
+      items: buildItemsWithHotkeys(state.game, itemTypes, nextHotkeysByItem),
+    };
+  }
+
+  if (action.type === "clear-hotkey") {
+    const nextHotkeysByItem: Record<ItemType, string> = {
+      ...state.hotkeysByItem,
+      [action.itemId]: "",
+    };
+    const itemTypes = resolveItemTypes(state.game, state.presetId, state.customItemTypes);
+
+    return {
+      ...state,
+      hotkeyConflict: null,
+      hotkeysByItem: nextHotkeysByItem,
+      items: buildItemsWithHotkeys(state.game, itemTypes, nextHotkeysByItem),
     };
   }
 

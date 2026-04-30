@@ -1,13 +1,13 @@
 import type { Game, ItemConfig, ItemType, MapPreset } from "../types/domain";
 
-export const ALL_ITEM_TYPES: ItemType[] = ["RedArmor", "YellowArmor", "GreenArmor", "MegaHealth", "Health"];
+export const ALL_ITEM_TYPES: ItemType[] = ["MegaHealth", "RedArmor", "GreenArmor", "YellowArmor", "Health"];
 
 export const DEFAULT_HOTKEY_BY_ITEM: Record<ItemType, string> = {
   MegaHealth: "F1",
   RedArmor: "F2",
   YellowArmor: "F3",
-  GreenArmor: "F4",
-  Health: "F5",
+  GreenArmor: "",
+  Health: "",
 };
 
 export const ITEM_META: Record<ItemType, { label: string; color: string; icon: "armor" | "mega" | "health" }> = {
@@ -66,11 +66,19 @@ export function getSpawnSeconds(game: Game, itemType: ItemType): number {
 }
 
 export function buildItems(game: Game, itemTypes: ItemType[]): ItemConfig[] {
+  return buildItemsWithHotkeys(game, itemTypes, DEFAULT_HOTKEY_BY_ITEM);
+}
+
+export function buildItemsWithHotkeys(
+  game: Game,
+  itemTypes: ItemType[],
+  hotkeysByItem: Record<ItemType, string>,
+): ItemConfig[] {
   return itemTypes.map((itemType) => ({
     id: itemType,
     itemType,
     spawnSeconds: getSpawnSeconds(game, itemType),
-    hotkey: DEFAULT_HOTKEY_BY_ITEM[itemType],
+    hotkey: hotkeysByItem[itemType] ?? DEFAULT_HOTKEY_BY_ITEM[itemType],
   }));
 }
 

@@ -5,6 +5,7 @@ export type PersistedState = {
   game: Game;
   presetId: string;
   customItemTypes: ItemType[];
+  hotkeysByItem: Record<ItemType, string>;
   items: ItemConfig[];
   settings: AppSettings;
 };

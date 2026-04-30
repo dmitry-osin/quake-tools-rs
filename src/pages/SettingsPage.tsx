@@ -15,6 +15,7 @@ type SettingsPageProps = {
   onShowGuide: () => void;
   onEnableGuideOnStartup: () => void;
   onAssignHotkey: (itemId: string, hotkey: string) => void;
+  onClearHotkey: (itemId: string) => void;
   onClearHotkeyConflict: () => void;
   onToggleStageSound: (stage: "stage1" | "stage2" | "stage3") => void;
   onSetStageThreshold: (stage: "stage1" | "stage2" | "stage3", thresholdSeconds: number) => void;
@@ -35,6 +36,7 @@ export function SettingsPage({
   onShowGuide,
   onEnableGuideOnStartup,
   onAssignHotkey,
+  onClearHotkey,
   onClearHotkeyConflict,
   onToggleStageSound,
   onSetStageThreshold,
@@ -115,6 +117,7 @@ export function SettingsPage({
               itemLabel={ITEM_META[item.itemType].label}
               hotkey={item.hotkey}
               onAssign={onAssignHotkey}
+              onClear={onClearHotkey}
             />
           ))}
         </div>
