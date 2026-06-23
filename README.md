@@ -6,6 +6,12 @@ Quake Tools helps track item respawns with hotkeys, timer cards, visual alerts, 
 
 Important: this is not a cheat. It is an assistant app that helps players stay organized, calculate timings, and train timing memory.
 
+## Demo
+
+Demo of the application in action:
+
+![Quake Tools Demo](./demo.gif)
+
 ## Features
 
 - QL and QC game modes with independent map presets.
