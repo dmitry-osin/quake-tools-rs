@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { ITEM_META } from "../data/gameData";
 import { CheatSheet } from "../components/CheatSheet";
 import { TimerCard } from "../components/TimerCard";
-import type { AlertStageSettings, DisplayMode, Game, ItemConfig, ItemType, MapPreset, TimerEntry } from "../types/domain";
+import type { DisplayMode, Game, ItemAlertSettings, ItemConfig, ItemType, MapPreset, TimerEntry } from "../types/domain";
 
 type MainPageProps = {
   game: Game;
@@ -13,9 +13,7 @@ type MainPageProps = {
   items: ItemConfig[];
   timers: Record<string, TimerEntry>;
   displayMode: DisplayMode;
-  stage1: AlertStageSettings;
-  stage2: AlertStageSettings;
-  stage3: AlertStageSettings;
+  itemAlerts: Record<ItemType, ItemAlertSettings>;
   gameClockMs: number;
   gameClockRunning: boolean;
   allItemTypes: ItemType[];
@@ -47,9 +45,7 @@ function formatSpawnAt(ms: number): string {
 function resolveStageState(
   status: TimerEntry["status"],
   remainingMs: number,
-  stage1: AlertStageSettings,
-  stage2: AlertStageSettings,
-  stage3: AlertStageSettings,
+  itemAlert: ItemAlertSettings,
 ): StageState {
   if (status !== "Running") {
     return { color: null, effectClassName: "" };
@@ -57,16 +53,12 @@ function resolveStageState(
 
   const remainingSeconds = Math.ceil(remainingMs / 1000);
 
-  if (remainingSeconds <= stage3.thresholdSeconds) {
-    return { color: stage3.color, effectClassName: "timer-flash" };
+  if (remainingSeconds <= itemAlert.stage2ThresholdSeconds) {
+    return { color: itemAlert.stage2Color, effectClassName: "timer-pulse-fast" };
   }
 
-  if (remainingSeconds <= stage2.thresholdSeconds) {
-    return { color: stage2.color, effectClassName: "timer-pulse-fast" };
-  }
-
-  if (remainingSeconds <= stage1.thresholdSeconds) {
-    return { color: stage1.color, effectClassName: "timer-pulse-slow" };
+  if (remainingSeconds <= itemAlert.stage1ThresholdSeconds) {
+    return { color: itemAlert.stage1Color, effectClassName: "timer-pulse-slow" };
   }
 
   return { color: null, effectClassName: "" };
@@ -80,9 +72,7 @@ export function MainPage({
   items,
   timers,
   displayMode,
-  stage1,
-  stage2,
-  stage3,
+  itemAlerts,
   gameClockMs,
   gameClockRunning,
   allItemTypes,
@@ -215,7 +205,7 @@ export function MainPage({
                   ? formatSpawnAt(timer?.spawnAtGameMs ?? gameClockMs)
                   : String(Math.ceil(remainingMs / 1000));
           const remainingLabel = status === "Idle" ? undefined : `${t("main.remainingShort")} ${Math.ceil(remainingMs / 1000)}s`;
-          const stageState = resolveStageState(status, remainingMs, stage1, stage2, stage3);
+          const stageState = resolveStageState(status, remainingMs, itemAlerts[item.itemType]);
 
           return (
             <TimerCard

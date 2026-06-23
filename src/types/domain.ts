@@ -25,10 +25,11 @@ export interface TimerEntry {
   spawnAtGameMs: number | null;
 }
 
-export interface AlertStageSettings {
-  thresholdSeconds: number;
-  color: string;
-  soundEnabled: boolean;
+export interface ItemAlertSettings {
+  stage1ThresholdSeconds: number;
+  stage2ThresholdSeconds: number;
+  stage1Color: string;
+  stage2Color: string;
   volume: number;
 }
 
@@ -37,9 +38,7 @@ export interface AppSettings {
   developerMode: boolean;
   guideNeverShowAgain: boolean;
   idleColor: string;
-  stage1: AlertStageSettings;
-  stage2: AlertStageSettings;
-  stage3: AlertStageSettings;
+  itemAlerts: Record<ItemType, ItemAlertSettings>;
   soundEnabled: boolean;
   displayMode: DisplayMode;
   alwaysOnTop: boolean;

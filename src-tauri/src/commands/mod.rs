@@ -44,11 +44,15 @@ fn validate_persisted_state(state: &PersistedState) -> bool {
         presets.iter().any(|preset| preset.id == state.preset_id)
     };
 
-    let thresholds_valid = state.settings.stage1.threshold_seconds > state.settings.stage2.threshold_seconds
-        && state.settings.stage2.threshold_seconds > state.settings.stage3.threshold_seconds
-        && state.settings.stage3.threshold_seconds > 0;
+    let has_all_item_alerts = state.settings.item_alerts.len() == 5;
 
-    valid_preset && thresholds_valid
+    let thresholds_valid = state
+        .settings
+        .item_alerts
+        .values()
+        .all(|alert| alert.stage1_threshold_seconds > alert.stage2_threshold_seconds && alert.stage2_threshold_seconds > 0);
+
+    valid_preset && has_all_item_alerts && thresholds_valid
 }
 
 fn default_persisted_state() -> PersistedState {

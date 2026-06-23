@@ -68,11 +68,67 @@ pub struct TimerEntry {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct AlertStageSettings {
-    pub threshold_seconds: i32,
-    pub color: String,
-    pub sound_enabled: bool,
+pub struct ItemAlertSettings {
+    pub stage1_threshold_seconds: i32,
+    pub stage2_threshold_seconds: i32,
+    pub stage1_color: String,
+    pub stage2_color: String,
     pub volume: f32,
+}
+
+fn default_item_alerts() -> HashMap<ItemType, ItemAlertSettings> {
+    HashMap::from([
+        (
+            ItemType::MegaHealth,
+            ItemAlertSettings {
+                stage1_threshold_seconds: 15,
+                stage2_threshold_seconds: 10,
+                stage1_color: "#f59e0b".to_string(),
+                stage2_color: "#ef4444".to_string(),
+                volume: 0.9,
+            },
+        ),
+        (
+            ItemType::RedArmor,
+            ItemAlertSettings {
+                stage1_threshold_seconds: 15,
+                stage2_threshold_seconds: 10,
+                stage1_color: "#f59e0b".to_string(),
+                stage2_color: "#ef4444".to_string(),
+                volume: 0.9,
+            },
+        ),
+        (
+            ItemType::GreenArmor,
+            ItemAlertSettings {
+                stage1_threshold_seconds: 15,
+                stage2_threshold_seconds: 10,
+                stage1_color: "#f59e0b".to_string(),
+                stage2_color: "#ef4444".to_string(),
+                volume: 0.9,
+            },
+        ),
+        (
+            ItemType::YellowArmor,
+            ItemAlertSettings {
+                stage1_threshold_seconds: 15,
+                stage2_threshold_seconds: 10,
+                stage1_color: "#f59e0b".to_string(),
+                stage2_color: "#ef4444".to_string(),
+                volume: 0.9,
+            },
+        ),
+        (
+            ItemType::Health,
+            ItemAlertSettings {
+                stage1_threshold_seconds: 15,
+                stage2_threshold_seconds: 10,
+                stage1_color: "#f59e0b".to_string(),
+                stage2_color: "#ef4444".to_string(),
+                volume: 0.9,
+            },
+        ),
+    ])
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -84,9 +140,8 @@ pub struct AppSettings {
     #[serde(default)]
     pub guide_never_show_again: bool,
     pub idle_color: String,
-    pub stage1: AlertStageSettings,
-    pub stage2: AlertStageSettings,
-    pub stage3: AlertStageSettings,
+    #[serde(default = "default_item_alerts")]
+    pub item_alerts: HashMap<ItemType, ItemAlertSettings>,
     pub sound_enabled: bool,
     pub display_mode: DisplayMode,
     pub always_on_top: bool,
@@ -132,24 +187,7 @@ impl Default for AppSettings {
             developer_mode: false,
             guide_never_show_again: false,
             idle_color: "#4b5563".to_string(),
-            stage1: AlertStageSettings {
-                threshold_seconds: 15,
-                color: "#f59e0b".to_string(),
-                sound_enabled: true,
-                volume: 0.8,
-            },
-            stage2: AlertStageSettings {
-                threshold_seconds: 10,
-                color: "#ef4444".to_string(),
-                sound_enabled: true,
-                volume: 0.9,
-            },
-            stage3: AlertStageSettings {
-                threshold_seconds: 7,
-                color: "#ef4444".to_string(),
-                sound_enabled: true,
-                volume: 1.0,
-            },
+            item_alerts: default_item_alerts(),
             sound_enabled: true,
             display_mode: DisplayMode::SpawnTime,
             always_on_top: false,

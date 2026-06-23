@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { register, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
-import { playStage1, playStage2, playStage3 } from "../audio/alertAudio";
+import { playItemGoTo, playItemReady, playItemSoon, playItemTaken } from "../audio/alertAudio";
 import { ALL_ITEM_TYPES, buildItemsWithHotkeys, getPresetsByGame } from "../data/gameData";
 import { eventToHotkey, isValidHotkey, normalizeHotkeyInput, toPluginHotkey } from "../hotkeys/hotkeyUtils";
 import { loadPersistedState, savePersistedState, setAlwaysOnTop } from "../services/settingsPersistence";
@@ -13,7 +13,7 @@ import { MainPage } from "../pages/MainPage";
 import { SettingsPage } from "../pages/SettingsPage";
 import { TrainerPage } from "../pages/TrainerPage";
 import { appReducer, initialAppState, selectGameClockMs } from "../state/appState";
-import type { Game } from "../types/domain";
+import type { Game, TimerStatus } from "../types/domain";
 
 export function AppShell() {
   const { t } = useTranslation();
@@ -23,6 +23,20 @@ export function AppShell() {
   const [hydrated, setHydrated] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
   const previousSecondsRef = useRef<Record<string, number>>({});
+  const previousStatusRef = useRef<Record<string, TimerStatus>>({});
+
+  function activateItemWithSound(itemId: string, now: number): void {
+    const item = state.items.find((entry) => entry.id === itemId);
+    if (!item) {
+      return;
+    }
+
+    if (state.settings.soundEnabled) {
+      playItemTaken(item.itemType, state.settings.itemAlerts[item.itemType].volume);
+    }
+
+    dispatch({ type: "activate-item", itemId, nowMs: now });
+  }
 
   useEffect(() => {
     void (async () => {
@@ -104,50 +118,48 @@ export function AppShell() {
   useEffect(() => {
     const nextSeconds: Record<string, number> = {};
 
-    for (const itemId of Object.keys(state.timers)) {
-      const timer = state.timers[itemId];
+    const nextStatus: Record<string, TimerStatus> = {};
+
+    for (const item of state.items) {
+      const timer = state.timers[item.id];
+      if (!timer) {
+        continue;
+      }
+
+      nextStatus[item.id] = timer.status;
+
+      if (state.settings.soundEnabled && timer.status === "Expired" && previousStatusRef.current[item.id] === "Running") {
+        playItemReady(item.itemType, state.settings.itemAlerts[item.itemType].volume);
+      }
+
       if (timer.status !== "Running") {
         continue;
       }
 
       const currentSeconds = Math.max(0, Math.ceil(timer.remainingMs / 1000));
-      const previousSeconds = previousSecondsRef.current[itemId];
+      const previousSeconds = previousSecondsRef.current[item.id];
+      const itemAlert = state.settings.itemAlerts[item.itemType];
 
       if (
         state.settings.soundEnabled &&
         previousSeconds !== undefined &&
         previousSeconds !== currentSeconds
       ) {
-        if (
-          previousSeconds > state.settings.stage1.thresholdSeconds &&
-          currentSeconds <= state.settings.stage1.thresholdSeconds &&
-          state.settings.stage1.soundEnabled
-        ) {
-          playStage1(state.settings.stage1.volume);
+        if (previousSeconds > itemAlert.stage1ThresholdSeconds && currentSeconds <= itemAlert.stage1ThresholdSeconds) {
+          playItemSoon(item.itemType, itemAlert.volume);
         }
 
-        if (
-          previousSeconds > state.settings.stage2.thresholdSeconds &&
-          currentSeconds <= state.settings.stage2.thresholdSeconds &&
-          state.settings.stage2.soundEnabled
-        ) {
-          playStage2(state.settings.stage2.volume);
-        }
-
-        if (
-          currentSeconds <= state.settings.stage3.thresholdSeconds &&
-          currentSeconds > 0 &&
-          state.settings.stage3.soundEnabled
-        ) {
-          playStage3(state.settings.stage3.volume);
+        if (previousSeconds > itemAlert.stage2ThresholdSeconds && currentSeconds <= itemAlert.stage2ThresholdSeconds) {
+          playItemGoTo(item.itemType, itemAlert.volume);
         }
       }
 
-      nextSeconds[itemId] = currentSeconds;
+      nextSeconds[item.id] = currentSeconds;
     }
 
     previousSecondsRef.current = nextSeconds;
-  }, [state.settings, state.timers]);
+    previousStatusRef.current = nextStatus;
+  }, [state.items, state.settings, state.timers]);
 
   useEffect(() => {
     let active = true;
@@ -184,7 +196,7 @@ export function AppShell() {
               return;
             }
 
-            dispatch({ type: "activate-item", itemId: item.id, nowMs: Date.now() });
+            activateItemWithSound(item.id, Date.now());
           });
         }
 
@@ -205,7 +217,7 @@ export function AppShell() {
       active = false;
       void unregisterAll();
     };
-  }, [state.items, state.page, state.settings.globalHookActive, t]);
+  }, [state.items, state.page, state.settings.globalHookActive, state.settings.itemAlerts, state.settings.soundEnabled, t]);
 
   useEffect(() => {
     if (state.settings.globalHookActive && !globalHookError) {
@@ -233,12 +245,12 @@ export function AppShell() {
       }
 
       event.preventDefault();
-      dispatch({ type: "activate-item", itemId: item.id, nowMs: Date.now() });
+      activateItemWithSound(item.id, Date.now());
     };
 
     window.addEventListener("keydown", listener);
     return () => window.removeEventListener("keydown", listener);
-  }, [globalHookError, state.items, state.page, state.settings.globalHookActive]);
+  }, [globalHookError, state.items, state.page, state.settings.globalHookActive, state.settings.itemAlerts, state.settings.soundEnabled]);
 
   useEffect(() => {
     const blockFindNext = (event: KeyboardEvent) => {
@@ -263,12 +275,12 @@ export function AppShell() {
       }
 
       event.stopPropagation();
-      dispatch({ type: "activate-item", itemId: item.id, nowMs: Date.now() });
+      activateItemWithSound(item.id, Date.now());
     };
 
     window.addEventListener("keydown", blockFindNext, true);
     return () => window.removeEventListener("keydown", blockFindNext, true);
-  }, [globalHookError, state.items, state.page, state.settings.globalHookActive]);
+  }, [globalHookError, state.items, state.page, state.settings.globalHookActive, state.settings.itemAlerts, state.settings.soundEnabled]);
 
   const presets = useMemo(() => getPresetsByGame(state.game), [state.game]);
   const gameClockMs = useMemo(() => selectGameClockMs(state, nowMs), [nowMs, state]);
@@ -293,10 +305,11 @@ export function AppShell() {
           onAssignHotkey={(itemId, hotkey) => dispatch({ type: "assign-hotkey", itemId, hotkey })}
           onClearHotkey={(itemId) => dispatch({ type: "clear-hotkey", itemId })}
           onClearHotkeyConflict={() => dispatch({ type: "clear-hotkey-conflict" })}
-          onToggleStageSound={(stage) => dispatch({ type: "toggle-stage-sound", stage })}
-          onSetStageThreshold={(stage, thresholdSeconds) => dispatch({ type: "set-stage-threshold", stage, thresholdSeconds })}
-          onSetStageColor={(stage, color) => dispatch({ type: "set-stage-color", stage, color })}
-          onSetStageVolume={(stage, volume) => dispatch({ type: "set-stage-volume", stage, volume })}
+          onSetItemStageThreshold={(itemType, stage, thresholdSeconds) =>
+            dispatch({ type: "set-item-stage-threshold", itemType, stage, thresholdSeconds })
+          }
+          onSetItemStageColor={(itemType, stage, color) => dispatch({ type: "set-item-stage-color", itemType, stage, color })}
+          onSetItemVolume={(itemType, volume) => dispatch({ type: "set-item-volume", itemType, volume })}
           onToggleAlwaysOnTop={() => dispatch({ type: "toggle-always-on-top" })}
           onToggleGlobalHook={() => dispatch({ type: "toggle-global-hook" })}
         />
@@ -320,15 +333,13 @@ export function AppShell() {
         onToggleCustomItem={(itemType) => dispatch({ type: "toggle-custom-item", itemType })}
         timers={state.timers}
         displayMode={state.settings.displayMode}
-        stage1={state.settings.stage1}
-        stage2={state.settings.stage2}
-        stage3={state.settings.stage3}
+        itemAlerts={state.settings.itemAlerts}
         gameClockMs={gameClockMs}
         gameClockRunning={state.gameClockRunning}
         onSetDisplayMode={(displayMode) => dispatch({ type: "set-display-mode", displayMode })}
         onToggleGameClock={() => dispatch({ type: "toggle-game-clock", nowMs })}
         onResetGameClock={() => dispatch({ type: "reset-game-clock" })}
-        onActivateItem={(itemId) => dispatch({ type: "activate-item", itemId, nowMs })}
+        onActivateItem={(itemId) => activateItemWithSound(itemId, nowMs)}
       />
     );
   }, [gameClockMs, nowMs, presets, state]);

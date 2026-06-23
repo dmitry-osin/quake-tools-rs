@@ -31,11 +31,10 @@ type Action =
   | { type: "toggle-developer-mode" }
   | { type: "set-guide-never-show-again"; value: boolean }
   | { type: "toggle-always-on-top" }
-  | { type: "toggle-stage-sound"; stage: "stage1" | "stage2" | "stage3" }
   | { type: "set-theme"; theme: Theme }
-  | { type: "set-stage-threshold"; stage: "stage1" | "stage2" | "stage3"; thresholdSeconds: number }
-  | { type: "set-stage-color"; stage: "stage1" | "stage2" | "stage3"; color: string }
-  | { type: "set-stage-volume"; stage: "stage1" | "stage2" | "stage3"; volume: number }
+  | { type: "set-item-stage-threshold"; itemType: ItemType; stage: "stage1" | "stage2"; thresholdSeconds: number }
+  | { type: "set-item-stage-color"; itemType: ItemType; stage: "stage1" | "stage2"; color: string }
+  | { type: "set-item-volume"; itemType: ItemType; volume: number }
   | { type: "assign-hotkey"; itemId: string; hotkey: string }
   | { type: "clear-hotkey"; itemId: string }
   | { type: "clear-hotkey-conflict" }
@@ -50,14 +49,22 @@ const defaultSettings: AppSettings = {
   developerMode: false,
   guideNeverShowAgain: false,
   idleColor: "#4b5563",
-  stage1: { thresholdSeconds: 15, color: "#f59e0b", soundEnabled: true, volume: 0.8 },
-  stage2: { thresholdSeconds: 10, color: "#ef4444", soundEnabled: true, volume: 0.9 },
-  stage3: { thresholdSeconds: 7, color: "#ef4444", soundEnabled: true, volume: 1.0 },
+  itemAlerts: {
+    MegaHealth: { stage1ThresholdSeconds: 15, stage2ThresholdSeconds: 10, stage1Color: "#f59e0b", stage2Color: "#ef4444", volume: 0.9 },
+    RedArmor: { stage1ThresholdSeconds: 15, stage2ThresholdSeconds: 10, stage1Color: "#f59e0b", stage2Color: "#ef4444", volume: 0.9 },
+    GreenArmor: { stage1ThresholdSeconds: 15, stage2ThresholdSeconds: 10, stage1Color: "#f59e0b", stage2Color: "#ef4444", volume: 0.9 },
+    YellowArmor: { stage1ThresholdSeconds: 15, stage2ThresholdSeconds: 10, stage1Color: "#f59e0b", stage2Color: "#ef4444", volume: 0.9 },
+    Health: { stage1ThresholdSeconds: 15, stage2ThresholdSeconds: 10, stage1Color: "#f59e0b", stage2Color: "#ef4444", volume: 0.9 },
+  },
   soundEnabled: true,
   displayMode: "SpawnTime",
   alwaysOnTop: false,
   globalHookActive: false,
 };
+
+function clampThreshold(value: number): number {
+  return Math.max(1, Math.floor(value));
+}
 
 const defaultCustomItemTypes: ItemType[] = [];
 const defaultGame: Game = "QuakeLive";
@@ -238,19 +245,6 @@ export function appReducer(state: AppState, action: Action): AppState {
     };
   }
 
-  if (action.type === "toggle-stage-sound") {
-    return {
-      ...state,
-      settings: {
-        ...state.settings,
-        [action.stage]: {
-          ...state.settings[action.stage],
-          soundEnabled: !state.settings[action.stage].soundEnabled,
-        },
-      },
-    };
-  }
-
   if (action.type === "set-theme") {
     return {
       ...state,
@@ -261,42 +255,61 @@ export function appReducer(state: AppState, action: Action): AppState {
     };
   }
 
-  if (action.type === "set-stage-threshold") {
-    const value = Math.max(1, Math.floor(action.thresholdSeconds));
+  if (action.type === "set-item-stage-threshold") {
+    const current = state.settings.itemAlerts[action.itemType];
+    const raw = clampThreshold(action.thresholdSeconds);
+    const nextStage1 = action.stage === "stage1" ? Math.max(raw, current.stage2ThresholdSeconds + 1) : current.stage1ThresholdSeconds;
+    const nextStage2 = action.stage === "stage2" ? Math.min(raw, nextStage1 - 1) : current.stage2ThresholdSeconds;
+
     return {
       ...state,
       settings: {
         ...state.settings,
-        [action.stage]: {
-          ...state.settings[action.stage],
-          thresholdSeconds: value,
+        itemAlerts: {
+          ...state.settings.itemAlerts,
+          [action.itemType]: {
+            ...current,
+            stage1ThresholdSeconds: nextStage1,
+            stage2ThresholdSeconds: nextStage2,
+          },
         },
       },
     };
   }
 
-  if (action.type === "set-stage-color") {
+  if (action.type === "set-item-stage-color") {
+    const current = state.settings.itemAlerts[action.itemType];
+
     return {
       ...state,
       settings: {
         ...state.settings,
-        [action.stage]: {
-          ...state.settings[action.stage],
-          color: action.color,
+        itemAlerts: {
+          ...state.settings.itemAlerts,
+          [action.itemType]: {
+            ...current,
+            stage1Color: action.stage === "stage1" ? action.color : current.stage1Color,
+            stage2Color: action.stage === "stage2" ? action.color : current.stage2Color,
+          },
         },
       },
     };
   }
 
-  if (action.type === "set-stage-volume") {
+  if (action.type === "set-item-volume") {
     const value = Math.max(0, Math.min(1, action.volume));
+    const current = state.settings.itemAlerts[action.itemType];
+
     return {
       ...state,
       settings: {
         ...state.settings,
-        [action.stage]: {
-          ...state.settings[action.stage],
-          volume: value,
+        itemAlerts: {
+          ...state.settings.itemAlerts,
+          [action.itemType]: {
+            ...current,
+            volume: value,
+          },
         },
       },
     };

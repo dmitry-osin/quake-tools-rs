@@ -1,8 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { HotkeyInput } from "../components/HotkeyInput";
 import { ITEM_META } from "../data/gameData";
-import type { HotkeyConflict, ItemConfig } from "../types/domain";
-import type { AppSettings, Theme } from "../types/domain";
+import type { AppSettings, HotkeyConflict, ItemConfig, ItemType, Theme } from "../types/domain";
 
 type SettingsPageProps = {
   settings: AppSettings;
@@ -17,10 +16,9 @@ type SettingsPageProps = {
   onAssignHotkey: (itemId: string, hotkey: string) => void;
   onClearHotkey: (itemId: string) => void;
   onClearHotkeyConflict: () => void;
-  onToggleStageSound: (stage: "stage1" | "stage2" | "stage3") => void;
-  onSetStageThreshold: (stage: "stage1" | "stage2" | "stage3", thresholdSeconds: number) => void;
-  onSetStageColor: (stage: "stage1" | "stage2" | "stage3", color: string) => void;
-  onSetStageVolume: (stage: "stage1" | "stage2" | "stage3", volume: number) => void;
+  onSetItemStageThreshold: (itemType: ItemType, stage: "stage1" | "stage2", thresholdSeconds: number) => void;
+  onSetItemStageColor: (itemType: ItemType, stage: "stage1" | "stage2", color: string) => void;
+  onSetItemVolume: (itemType: ItemType, volume: number) => void;
   onToggleAlwaysOnTop: () => void;
   onToggleGlobalHook: () => void;
 };
@@ -38,20 +36,13 @@ export function SettingsPage({
   onAssignHotkey,
   onClearHotkey,
   onClearHotkeyConflict,
-  onToggleStageSound,
-  onSetStageThreshold,
-  onSetStageColor,
-  onSetStageVolume,
+  onSetItemStageThreshold,
+  onSetItemStageColor,
+  onSetItemVolume,
   onToggleAlwaysOnTop,
   onToggleGlobalHook,
 }: SettingsPageProps) {
   const { t } = useTranslation();
-
-  const stageEntries = [
-    { key: "stage1", value: settings.stage1, label: t("settings.stage1") },
-    { key: "stage2", value: settings.stage2, label: t("settings.stage2") },
-    { key: "stage3", value: settings.stage3, label: t("settings.stage3") },
-  ] as const;
 
   return (
     <section className="space-y-3">
@@ -124,40 +115,62 @@ export function SettingsPage({
       </section>
 
       <section className="panel space-y-2">
-        <h2 className="panel-title">{t("settings.alertStages")}</h2>
-        {stageEntries.map((stage) => (
-          <div key={stage.key} className="space-y-2 rounded border border-[var(--border2)] bg-[var(--surface2)] p-2">
-            <div className="text-sm font-medium">{stage.label}</div>
-            <label className="flex items-center justify-between text-xs text-[var(--t2)]">
-              <span>{t("settings.stageSound")}</span>
-              <input type="checkbox" checked={stage.value.soundEnabled} onChange={() => onToggleStageSound(stage.key)} />
-            </label>
-            <label className="flex items-center justify-between gap-2 text-xs text-[var(--t2)]">
-              <span>{t("settings.threshold")}</span>
-              <input
-                type="number"
-                min={1}
-                value={stage.value.thresholdSeconds}
-                onChange={(event) => onSetStageThreshold(stage.key, Number(event.currentTarget.value))}
-                className="w-20 rounded border border-[var(--border2)] bg-[var(--surface)] px-2 py-1"
-              />
-            </label>
-            <label className="flex items-center justify-between gap-2 text-xs text-[var(--t2)]">
-              <span>{t("settings.color")}</span>
-              <input type="color" value={stage.value.color} onChange={(event) => onSetStageColor(stage.key, event.currentTarget.value)} />
-            </label>
-            <label className="flex items-center justify-between gap-2 text-xs text-[var(--t2)]">
-              <span>{t("settings.volume")}: {Math.round(stage.value.volume * 100)}%</span>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={Math.round(stage.value.volume * 100)}
-                onChange={(event) => onSetStageVolume(stage.key, Number(event.currentTarget.value) / 100)}
-              />
-            </label>
-          </div>
-        ))}
+        <h2 className="panel-title">{t("settings.itemAlerts")}</h2>
+        {items.map((item) => {
+          const itemAlert = settings.itemAlerts[item.itemType];
+
+          return (
+            <div key={item.itemType} className="space-y-2 rounded border border-[var(--border2)] bg-[var(--surface2)] p-2">
+              <div className="text-sm font-medium">{ITEM_META[item.itemType].label}</div>
+              <label className="flex items-center justify-between gap-2 text-xs text-[var(--t2)]">
+                <span>{t("settings.stage1Threshold")}</span>
+                <input
+                  type="number"
+                  min={2}
+                  value={itemAlert.stage1ThresholdSeconds}
+                  onChange={(event) => onSetItemStageThreshold(item.itemType, "stage1", Number(event.currentTarget.value))}
+                  className="w-20 rounded border border-[var(--border2)] bg-[var(--surface)] px-2 py-1"
+                />
+              </label>
+              <label className="flex items-center justify-between gap-2 text-xs text-[var(--t2)]">
+                <span>{t("settings.stage2Threshold")}</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={itemAlert.stage2ThresholdSeconds}
+                  onChange={(event) => onSetItemStageThreshold(item.itemType, "stage2", Number(event.currentTarget.value))}
+                  className="w-20 rounded border border-[var(--border2)] bg-[var(--surface)] px-2 py-1"
+                />
+              </label>
+              <label className="flex items-center justify-between gap-2 text-xs text-[var(--t2)]">
+                <span>{t("settings.stage1Color")}</span>
+                <input
+                  type="color"
+                  value={itemAlert.stage1Color}
+                  onChange={(event) => onSetItemStageColor(item.itemType, "stage1", event.currentTarget.value)}
+                />
+              </label>
+              <label className="flex items-center justify-between gap-2 text-xs text-[var(--t2)]">
+                <span>{t("settings.stage2Color")}</span>
+                <input
+                  type="color"
+                  value={itemAlert.stage2Color}
+                  onChange={(event) => onSetItemStageColor(item.itemType, "stage2", event.currentTarget.value)}
+                />
+              </label>
+              <label className="flex items-center justify-between gap-2 text-xs text-[var(--t2)]">
+                <span>{t("settings.volume")}: {Math.round(itemAlert.volume * 100)}%</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={Math.round(itemAlert.volume * 100)}
+                  onChange={(event) => onSetItemVolume(item.itemType, Number(event.currentTarget.value) / 100)}
+                />
+              </label>
+            </div>
+          );
+        })}
       </section>
 
       <section className="panel space-y-2">
