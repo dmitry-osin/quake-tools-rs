@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { QUAKE_CHAMPIONS_PRESETS, QUAKE_LIVE_PRESETS } from "../data/gameData";
 
-const REPOSITORY_URL = "https://github.com/dmitry-osin/quake-tools";
+const REPOSITORY_URL = "https://github.com/dmitry-osin/quake-tools-rs";
 
 export function AboutPage() {
   const { t } = useTranslation();
@@ -35,6 +35,9 @@ export function AboutPage() {
           <button type="button" className="mt-1 text-left text-cyan-300 underline" onClick={() => openUrl(REPOSITORY_URL)}>
             {t("about.repository")}: github.com/dmitry-osin/quake-tools
           </button>
+          <p className="mt-2 rounded border border-[var(--border2)] bg-[var(--surface)] px-2 py-1 text-xs text-[var(--t2)]">
+            {t("about.disclaimer")}
+          </p>
         </div>
       </section>
 

@@ -98,6 +98,7 @@
     "repository": "Repository",
     "version": "Version",
     "stack": "Technology stack",
+    "disclaimer": "This is not a cheat. It is an assistant app that helps players stay organized, calculate timings, and train timing memory.",
     "respawnRules": "Respawn rules",
     "game": "Game",
     "rule": "Rule",
