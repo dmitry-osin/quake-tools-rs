@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Game } from "../types/domain";
 
-type CheatSheetProps = {
+type ItemTimingsProps = {
   game: Game;
 };
 
@@ -51,22 +51,22 @@ const QC_ROWS = [
   "55 -> 25",
 ];
 
-export function CheatSheet({ game }: CheatSheetProps) {
+export function ItemTimings({ game }: ItemTimingsProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const sections =
     game === "QuakeLive"
       ? [
-          { title: t("cheatSheet.qlArmor"), rows: QL_ARMOR_ROWS },
-          { title: t("cheatSheet.qlHealth"), rows: QL_HEALTH_ROWS },
+          { title: t("itemTimings.qlArmor"), rows: QL_ARMOR_ROWS },
+          { title: t("itemTimings.qlHealth"), rows: QL_HEALTH_ROWS },
         ]
-      : [{ title: t("cheatSheet.qcShared"), rows: QC_ROWS }];
+      : [{ title: t("itemTimings.qcShared"), rows: QC_ROWS }];
 
   return (
     <section className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
       <button className="w-full rounded border border-[var(--border2)] px-3 py-2 text-left text-sm" type="button" onClick={() => setOpen((prev) => !prev)}>
-        {open ? t("cheatSheet.hide") : t("cheatSheet.show")}
+        {open ? t("itemTimings.hide") : t("itemTimings.show")}
       </button>
 
       {open ? (
@@ -77,7 +77,7 @@ export function CheatSheet({ game }: CheatSheetProps) {
               <div className="flex flex-wrap gap-2">
                 {section.rows.map((row) => (
                   <span key={row} className="rounded border border-[var(--border2)] bg-[var(--surface2)] px-2 py-1 text-xs">
-                    {row.replace("->", "sec pickup ->")} sec spawn
+                    {row}
                   </span>
                 ))}
               </div>

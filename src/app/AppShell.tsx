@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { register, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
+import { Circle, Power } from "lucide-react";
 import { playItemGoTo, playItemReady, playItemSoon, playItemTaken } from "../audio/alertAudio";
 import { ALL_ITEM_TYPES, buildItemsWithHotkeys, getPresetsByGame } from "../data/gameData";
 import { eventToHotkey, isValidHotkey, normalizeHotkeyInput, toPluginHotkey } from "../hotkeys/hotkeyUtils";
@@ -297,7 +298,6 @@ export function AppShell() {
           items={buildItemsWithHotkeys(state.game, ALL_ITEM_TYPES, state.hotkeysByItem)}
           hotkeyConflict={state.hotkeyConflict}
           onSetTheme={(theme) => dispatch({ type: "set-theme", theme })}
-          onSetDisplayMode={(displayMode) => dispatch({ type: "set-display-mode", displayMode })}
           onToggleSound={() => dispatch({ type: "toggle-sound" })}
           onToggleDeveloperMode={() => dispatch({ type: "toggle-developer-mode" })}
           onShowGuide={() => setGuideOpen(true)}
@@ -376,7 +376,6 @@ export function AppShell() {
           soundEnabled={state.settings.soundEnabled}
           alwaysOnTop={state.settings.alwaysOnTop}
           onToggleMenu={() => dispatch({ type: "set-nav-open", open: !state.navOpen })}
-          onToggleGlobalHook={() => dispatch({ type: "toggle-global-hook" })}
           onToggleSound={() => dispatch({ type: "toggle-sound" })}
           onToggleAlwaysOnTop={() => dispatch({ type: "toggle-always-on-top" })}
         />
@@ -385,6 +384,27 @@ export function AppShell() {
           <header className="mb-3 text-xs uppercase tracking-[0.24em] text-[var(--t3)]">
             {t("pages.current")}: {state.page}
           </header>
+
+          {state.page === "Main" ? (
+            <section className="panel mb-3">
+              <h2 className="panel-title">{t("pages.hookState")}</h2>
+              <div className="flex items-center justify-between gap-2 text-sm font-medium text-[var(--t1)]">
+                <div className="flex items-center gap-2">
+                  <Circle size={12} className={state.settings.globalHookActive ? "fill-emerald-400 text-emerald-400" : "fill-gray-500 text-gray-500"} />
+                  <span>{state.settings.globalHookActive ? t("pages.active") : t("pages.notActive")}</span>
+                </div>
+                <button
+                  className="flex h-8 w-8 items-center justify-center rounded border border-[var(--border2)] bg-[var(--surface)] text-[var(--t2)] transition-colors hover:text-[var(--t1)]"
+                  type="button"
+                  aria-label="Toggle global hook"
+                  onClick={() => dispatch({ type: "toggle-global-hook" })}
+                >
+                  <Power size={18} className={state.settings.globalHookActive ? "text-emerald-400" : "text-rose-500"} />
+                </button>
+              </div>
+            </section>
+          ) : null}
+
           {pageNode}
         </main>
       </div>

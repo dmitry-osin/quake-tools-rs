@@ -10,7 +10,10 @@
     "about": "About"
   },
   "pages": {
-    "current": "Current page"
+    "current": "Current page",
+    "hookState": "Hook State",
+    "active": "Active",
+    "notActive": "Not Active"
   },
   "main": {
     "gameMode": "Game mode",
@@ -32,12 +35,12 @@
     "customPreset": "Custom",
     "customItems": "Custom item pool"
   },
-  "cheatSheet": {
-    "show": "Show cheat sheet",
-    "hide": "Hide cheat sheet",
-    "qlArmor": "Armor (25s)",
-    "qlHealth": "Health (35s)",
-    "qcShared": "Armor / Health (30s)"
+  "itemTimings": {
+    "show": "Show Item Timings",
+    "hide": "Hide Item Timings",
+    "qlArmor": "Armor (25 sec)",
+    "qlHealth": "Health (35 sec)",
+    "qcShared": "Armor / Health (30 sec)"
   },
   "trainer": {
     "title": "Training mode",
@@ -56,9 +59,6 @@
   },
   "settings": {
     "theme": "Theme",
-    "displayMode": "Display mode",
-    "spawnTime": "Spawn Time",
-    "timeRemaining": "Time Remaining",
     "sound": "Sound",
     "globalSound": "Global sound",
     "hotkeys": "Hotkeys",

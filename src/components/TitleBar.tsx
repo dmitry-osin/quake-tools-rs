@@ -1,4 +1,4 @@
-import { Menu, Pin, PinOff, Radio, Volume2, VolumeX } from "lucide-react";
+import { Menu, Pin, PinOff, Volume2, VolumeX, X } from "lucide-react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import type { MouseEvent } from "react";
 
@@ -8,7 +8,6 @@ type TitleBarProps = {
   soundEnabled: boolean;
   alwaysOnTop: boolean;
   onToggleMenu: () => void;
-  onToggleGlobalHook: () => void;
   onToggleSound: () => void;
   onToggleAlwaysOnTop: () => void;
 };
@@ -19,7 +18,6 @@ export function TitleBar({
   soundEnabled,
   alwaysOnTop,
   onToggleMenu,
-  onToggleGlobalHook,
   onToggleSound,
   onToggleAlwaysOnTop,
 }: TitleBarProps) {
@@ -30,6 +28,10 @@ export function TitleBar({
 
     event.preventDefault();
     void getCurrentWindow().startDragging();
+  };
+
+  const handleCloseWindow = () => {
+    void getCurrentWindow().close();
   };
 
   return (
@@ -56,21 +58,21 @@ export function TitleBar({
           {appTitle}
         </span>
         <span
-          className={globalHookEnabled ? "led led-active" : "led led-inactive"}
+          className={globalHookEnabled ? "led led-active" : "led led-error"}
           aria-label={globalHookEnabled ? "Global hook active" : "Global hook inactive"}
           data-tauri-drag-region
         />
       </div>
 
       <div className="flex items-center gap-2">
-        <button className="icon-button" type="button" aria-label="Toggle global hook" onClick={onToggleGlobalHook} data-no-drag="true">
-          <Radio size={16} className={globalHookEnabled ? "text-emerald-400" : "text-[var(--t3)]"} />
-        </button>
         <button className="icon-button" type="button" aria-label="Toggle sound" onClick={onToggleSound} data-no-drag="true">
           {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
         </button>
         <button className="icon-button" type="button" aria-label="Toggle always on top" onClick={onToggleAlwaysOnTop} data-no-drag="true">
           {alwaysOnTop ? <Pin size={16} className="text-indigo-500" /> : <PinOff size={16} />}
+        </button>
+        <button className="icon-button icon-button-close" type="button" aria-label="Close window" onClick={handleCloseWindow} data-no-drag="true">
+          <X size={16} />
         </button>
       </div>
     </header>

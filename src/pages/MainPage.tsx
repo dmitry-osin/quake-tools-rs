@@ -1,7 +1,7 @@
 import { Pause, Play, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ITEM_META } from "../data/gameData";
-import { CheatSheet } from "../components/CheatSheet";
+import { ItemTimings } from "../components/ItemTimings";
 import { TimerCard } from "../components/TimerCard";
 import type { DisplayMode, Game, ItemAlertSettings, ItemConfig, ItemType, MapPreset, TimerEntry } from "../types/domain";
 
@@ -164,28 +164,28 @@ export function MainPage({
           </button>
           <span className="text-xs text-[var(--t3)]">{gameClockRunning ? t("main.clockRunning") : t("main.clockPaused")}</span>
         </div>
-      </div>
 
-      <div className="panel">
-        <h2 className="panel-title">{t("main.displayMode")}</h2>
-        {displayMode === "SpawnTime" && !gameClockRunning ? (
+        <div className="mt-3 border-t border-[var(--border2)] pt-3">
+          <h3 className="mb-2 text-xs uppercase tracking-[0.2em] text-[var(--t3)]">{t("main.displayMode")}</h3>
+          {displayMode === "SpawnTime" && !gameClockRunning ? (
           <div className="mb-2 text-xs text-amber-300">{t("main.spawnModeHint")}</div>
-        ) : null}
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className={displayMode === "SpawnTime" ? "nav-item nav-item-active" : "nav-item"}
-            onClick={() => onSetDisplayMode("SpawnTime")}
-          >
-            {t("main.spawnTime")}
-          </button>
-          <button
-            type="button"
-            className={displayMode === "TimeRemaining" ? "nav-item nav-item-active" : "nav-item"}
-            onClick={() => onSetDisplayMode("TimeRemaining")}
-          >
-            {t("main.timeRemaining")}
-          </button>
+          ) : null}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className={displayMode === "SpawnTime" ? "nav-item nav-item-active" : "nav-item"}
+              onClick={() => onSetDisplayMode("SpawnTime")}
+            >
+              {t("main.spawnTime")}
+            </button>
+            <button
+              type="button"
+              className={displayMode === "TimeRemaining" ? "nav-item nav-item-active" : "nav-item"}
+              onClick={() => onSetDisplayMode("TimeRemaining")}
+            >
+              {t("main.timeRemaining")}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -227,7 +227,7 @@ export function MainPage({
         })}
       </div>
 
-      <CheatSheet game={game} />
+      <ItemTimings game={game} />
     </section>
   );
 }

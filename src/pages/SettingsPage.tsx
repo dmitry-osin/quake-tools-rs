@@ -8,7 +8,6 @@ type SettingsPageProps = {
   items: ItemConfig[];
   hotkeyConflict: HotkeyConflict | null;
   onSetTheme: (theme: Theme) => void;
-  onSetDisplayMode: (mode: AppSettings["displayMode"]) => void;
   onToggleSound: () => void;
   onToggleDeveloperMode: () => void;
   onShowGuide: () => void;
@@ -23,12 +22,13 @@ type SettingsPageProps = {
   onToggleGlobalHook: () => void;
 };
 
+const HOTKEY_ORDER: ItemType[] = ["MegaHealth", "RedArmor", "YellowArmor", "GreenArmor", "Health"];
+
 export function SettingsPage({
   settings,
   items,
   hotkeyConflict,
   onSetTheme,
-  onSetDisplayMode,
   onToggleSound,
   onToggleDeveloperMode,
   onShowGuide,
@@ -43,6 +43,9 @@ export function SettingsPage({
   onToggleGlobalHook,
 }: SettingsPageProps) {
   const { t } = useTranslation();
+  const orderedItems = HOTKEY_ORDER.map((itemType) => items.find((item) => item.itemType === itemType)).filter(
+    (item): item is ItemConfig => Boolean(item),
+  );
 
   return (
     <section className="space-y-3">
@@ -59,26 +62,6 @@ export function SettingsPage({
               {theme}
             </button>
           ))}
-        </div>
-      </section>
-
-      <section className="panel space-y-2">
-        <h2 className="panel-title">{t("settings.displayMode")}</h2>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className={settings.displayMode === "SpawnTime" ? "nav-item nav-item-active" : "nav-item"}
-            onClick={() => onSetDisplayMode("SpawnTime")}
-          >
-            {t("settings.spawnTime")}
-          </button>
-          <button
-            type="button"
-            className={settings.displayMode === "TimeRemaining" ? "nav-item nav-item-active" : "nav-item"}
-            onClick={() => onSetDisplayMode("TimeRemaining")}
-          >
-            {t("settings.timeRemaining")}
-          </button>
         </div>
       </section>
 
@@ -101,7 +84,7 @@ export function SettingsPage({
           </div>
         ) : null}
         <div className="grid gap-2">
-          {items.map((item) => (
+          {orderedItems.map((item) => (
             <HotkeyInput
               key={item.id}
               itemId={item.id}
@@ -116,7 +99,7 @@ export function SettingsPage({
 
       <section className="panel space-y-2">
         <h2 className="panel-title">{t("settings.itemAlerts")}</h2>
-        {items.map((item) => {
+        {orderedItems.map((item) => {
           const itemAlert = settings.itemAlerts[item.itemType];
 
           return (
