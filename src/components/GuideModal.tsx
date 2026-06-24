@@ -22,6 +22,7 @@ export function GuideModal({ open, onGotIt, onNeverShowAgain }: GuideModalProps)
           <li>- {t("guide.hook")}</li>
           <li>- {t("guide.settings")}</li>
           <li>- {t("guide.hotkeys")}</li>
+          <li>- {t("guide.cvars")}</li>
           <li>- {t("guide.trainer")}</li>
         </ul>
         <div className="grid gap-2">

@@ -1,8 +1,8 @@
 # Quake Tools
 
-Desktop timer assistant for Quake Live and Quake Champions.
+Desktop timing assistant for Quake Live and Quake Champions.
 
-Quake Tools helps track item respawns with hotkeys, timer cards, visual alerts, and training mode.
+Quake Tools helps track item respawns with hotkeys, timer cards, visual alerts, training mode, and a built-in QL CVARs reference.
 
 Important: this is not a cheat. It is an assistant app that helps players stay organized, calculate timings, and train timing memory.
 
@@ -17,9 +17,10 @@ Demo of the application in action:
 - QL and QC game modes with independent map presets.
 - Preset-based item pool and custom item selection.
 - Timer cards for Red Armor, Yellow Armor, Green Armor, Mega Health, and Health.
-- Two display modes: `Spawn Time` and `Time Remaining`.
+- `Timers` page with two display modes: `Spawn Time` and `Time Remaining`.
 - Game clock with start, pause, and reset.
 - Global hotkeys with conflict detection and in-window fallback.
+- Hook state panel on `Timers` page (status + quick toggle).
 - Per-item alert configuration:
   - Stage 1 threshold and color
   - Stage 2 threshold and color
@@ -27,7 +28,12 @@ Demo of the application in action:
 - MP3 audio cues for item events (`taken`, `soon`, `go-to`, `ready`).
 - Theme system (`Light`, `Dark`, `Neon`) and persistent settings.
 - Trainer page for spawn-time calculation practice.
-- About page with stack details, rules, and map references.
+- QL CVARs section:
+  - search while typing (from 3+ chars, debounced)
+  - category filter
+  - paginated results
+  - details modal with copy/open actions, pro tip block, and first-open info modal
+- About page with stack details, rules, map references, and credits.
 
 ## Technologies
 
@@ -38,7 +44,14 @@ Demo of the application in action:
 - Lucide React
 - i18next + react-i18next (`public/locales/en.json`)
 - Tauri global shortcut plugin
+- SQLite (rusqlite) for local QL CVARs index/search
 - JSON persistence in `~/.quake-tools/settings.json`
+
+## Data Storage
+
+- App settings are stored in `~/.quake-tools/settings.json`.
+- QL CVARs source file is bundled from `src-tauri/assets/quake_cvars.json`.
+- Local CVARs SQLite database is stored in `~/.quake-tools/cvars.db`.
 
 ## Local Setup and Build
 
@@ -115,3 +128,9 @@ git push -u origin feature/short-name
 ## License
 
 MIT - see `LICENSE`.
+
+## Credits
+
+- QL CVARs database source: https://quakeliveconfigeditor.com/cvars/
+- Quake Live Config Editor: https://quakeliveconfigeditor.com/
+- Special thanks: Ryan Bassett - https://bassettgraphics.com/

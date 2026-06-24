@@ -123,6 +123,7 @@
     "hook": "Enable Global Hook to trigger timers outside the app window.",
     "settings": "In Settings you can customize per-item thresholds, colors, and volume.",
     "hotkeys": "You can remap hotkeys in Settings and resolve conflicts there.",
+    "cvars": "Use QL CVARs section to search variables and open detailed references.",
     "trainer": "Use Trainer mode to practice fast spawn-time calculations.",
     "gotIt": "Got it",
     "neverShowAgain": "Never show again"
