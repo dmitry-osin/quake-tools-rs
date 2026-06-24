@@ -34,8 +34,10 @@ pub enum Theme {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Page {
-    Main,
+    #[serde(alias = "Main")]
+    Timers,
     Trainer,
+    CVars,
     Settings,
     About,
 }
@@ -199,7 +201,7 @@ impl Default for AppSettings {
 impl Default for AppState {
     fn default() -> Self {
         Self {
-            page: Page::Main,
+            page: Page::Timers,
             nav_open: false,
             game: Game::QuakeLive,
             preset_id: "aerowalk".to_string(),

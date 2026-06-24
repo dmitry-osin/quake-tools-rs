@@ -10,6 +10,7 @@ import { GuideModal } from "../components/GuideModal";
 import { NavigationDrawer } from "../components/NavigationDrawer";
 import { TitleBar } from "../components/TitleBar";
 import { AboutPage } from "../pages/AboutPage";
+import { CvarsPage } from "../pages/CvarsPage";
 import { MainPage } from "../pages/MainPage";
 import { SettingsPage } from "../pages/SettingsPage";
 import { TrainerPage } from "../pages/TrainerPage";
@@ -181,7 +182,7 @@ export function AppShell() {
         return;
       }
 
-      if (state.page !== "Main") {
+      if (state.page !== "Timers") {
         return;
       }
 
@@ -193,7 +194,7 @@ export function AppShell() {
           }
 
           await register(toPluginHotkey(item.hotkey), () => {
-            if (state.page !== "Main") {
+            if (state.page !== "Timers") {
               return;
             }
 
@@ -226,7 +227,7 @@ export function AppShell() {
     }
 
     const listener = (event: KeyboardEvent) => {
-      if (state.page !== "Main") {
+      if (state.page !== "Timers") {
         return;
       }
 
@@ -266,7 +267,7 @@ export function AppShell() {
       event.preventDefault();
 
       const fallbackActive = !state.settings.globalHookActive || Boolean(globalHookError);
-      if (!fallbackActive || state.page !== "Main") {
+      if (!fallbackActive || state.page !== "Timers") {
         return;
       }
 
@@ -314,6 +315,10 @@ export function AppShell() {
           onToggleGlobalHook={() => dispatch({ type: "toggle-global-hook" })}
         />
       );
+    }
+
+    if (state.page === "CVars") {
+      return <CvarsPage />;
     }
 
     if (state.page === "About") {
@@ -385,7 +390,7 @@ export function AppShell() {
             {t("pages.current")}: {state.page}
           </header>
 
-          {state.page === "Main" ? (
+          {state.page === "Timers" ? (
             <section className="panel mb-3">
               <h2 className="panel-title">{t("pages.hookState")}</h2>
               <div className="flex items-center justify-between gap-2 text-sm font-medium text-[var(--t1)]">

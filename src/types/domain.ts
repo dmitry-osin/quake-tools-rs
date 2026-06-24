@@ -6,7 +6,7 @@ export type DisplayMode = "TimeRemaining" | "SpawnTime";
 
 export type Theme = "Light" | "Dark" | "Neon";
 
-export type Page = "Main" | "Trainer" | "Settings" | "About";
+export type Page = "Timers" | "Trainer" | "CVars" | "Settings" | "About";
 
 export type TimerStatus = "Idle" | "Running" | "Expired";
 

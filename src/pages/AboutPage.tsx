@@ -33,7 +33,7 @@ export function AboutPage() {
             {t("about.version")}: <span className="text-[var(--t1)]">{version}</span>
           </div>
           <button type="button" className="mt-1 text-left text-cyan-300 underline" onClick={() => openUrl(REPOSITORY_URL)}>
-            {t("about.repository")}: github.com/dmitry-osin/quake-tools
+            {t("about.repository")}: github.com/dmitry-osin/quake-tools-rs
           </button>
           <p className="mt-2 rounded border border-[var(--border2)] bg-[var(--surface)] px-2 py-1 text-xs text-[var(--t2)]">
             {t("about.disclaimer")}
@@ -55,6 +55,30 @@ export function AboutPage() {
               {badge}
             </span>
           ))}
+        </div>
+      </section>
+
+      <section className="panel space-y-2">
+        <h2 className="panel-title">{t("about.credits")}</h2>
+        <div className="space-y-2 rounded border border-[var(--border2)] bg-[var(--surface2)] p-2 text-xs text-[var(--t2)]">
+          <div>
+            {t("about.cvarsDatabase")}:{" "}
+            <button type="button" className="text-cyan-300 underline" onClick={() => openUrl("https://quakeliveconfigeditor.com/cvars/")}>
+              https://quakeliveconfigeditor.com/cvars/
+            </button>
+          </div>
+          <div>
+            {t("about.configEditor")}:{" "}
+            <button type="button" className="text-cyan-300 underline" onClick={() => openUrl("https://quakeliveconfigeditor.com/")}>
+              https://quakeliveconfigeditor.com/
+            </button>
+          </div>
+          <div>
+            {t("about.ryanBassett")}:{" "}
+            <button type="button" className="text-cyan-300 underline" onClick={() => openUrl("https://bassettgraphics.com/")}>
+              https://bassettgraphics.com/
+            </button>
+          </div>
         </div>
       </section>
 

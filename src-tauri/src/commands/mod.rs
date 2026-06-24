@@ -1,9 +1,11 @@
+use crate::cvars::{CvarCategorySummary, CvarDetail, CvarQueryResponse, CvarsDatabase};
 use crate::game_data;
 use crate::state::{AppSettings, Game, ItemConfig, ItemType};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
+use std::sync::Mutex;
 
 fn default_hotkeys_by_item() -> HashMap<ItemType, String> {
     HashMap::from([
@@ -136,4 +138,39 @@ pub fn load_persisted_state() -> PersistedState {
     }
 
     parsed
+}
+
+#[tauri::command]
+pub fn list_cvar_categories(database: tauri::State<'_, Mutex<CvarsDatabase>>) -> Result<Vec<CvarCategorySummary>, String> {
+    let guard = database
+        .lock()
+        .map_err(|_| "Failed to lock CVars database state".to_string())?;
+
+    guard.list_categories()
+}
+
+#[tauri::command]
+pub fn query_cvars(
+    database: tauri::State<'_, Mutex<CvarsDatabase>>,
+    query: Option<String>,
+    category: Option<String>,
+    page: Option<i32>,
+    page_size: Option<i32>,
+) -> Result<CvarQueryResponse, String> {
+    let guard = database
+        .lock()
+        .map_err(|_| "Failed to lock CVars database state".to_string())?;
+
+    let safe_page = page.unwrap_or(1).max(1);
+    let safe_page_size = page_size.unwrap_or(7).clamp(1, 100);
+    guard.query_page(query.as_deref(), category.as_deref(), safe_page, safe_page_size)
+}
+
+#[tauri::command]
+pub fn get_cvar_detail(database: tauri::State<'_, Mutex<CvarsDatabase>>, name: String) -> Result<Option<CvarDetail>, String> {
+    let guard = database
+        .lock()
+        .map_err(|_| "Failed to lock CVars database state".to_string())?;
+
+    guard.detail_by_name(&name)
 }

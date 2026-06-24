@@ -71,7 +71,7 @@ const defaultGame: Game = "QuakeLive";
 const defaultPresetId = firstPresetId(defaultGame);
 
 export const initialAppState: AppState = {
-  page: "Main",
+  page: "Timers",
   navOpen: false,
   game: defaultGame,
   presetId: defaultPresetId,

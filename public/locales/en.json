@@ -1,11 +1,12 @@
 {
   "app": {
-    "title": "Quake Timing"
+    "title": "Quake Tools"
   },
   "navigation": {
     "title": "Navigation",
-    "main": "Main",
+    "timers": "Timers",
     "trainer": "Trainer",
+    "cvars": "QL CVARs",
     "settings": "Settings",
     "about": "About"
   },
@@ -57,6 +58,40 @@
     "yourAnswer": "Your answer",
     "rightAnswer": "Correct answer"
   },
+  "cvars": {
+    "title": "QL CVars Reference",
+    "infoAria": "Open CVars info",
+    "infoTitle": "About this CVars database",
+    "infoLine1": "The CVars database is sourced from: ",
+    "infoLine2": "It is also a great tool for creating and editing Quake Live configs: ",
+    "infoLine3": "Special thanks to Ryan Bassett: ",
+    "searchPlaceholder": "Enter cvar name (example: cg_fov)",
+    "autoSearchHint": "Auto search while typing",
+    "categoryFilter": "Category filter",
+    "allCategories": "All categories",
+    "results": "Search results",
+    "loading": "Searching...",
+    "noResults": "No results yet. Enter a query and run search.",
+    "minChars": "Type at least 3 characters to search.",
+    "page": "Page",
+    "prev": "Prev",
+    "next": "Next",
+    "friendlyName": "Friendly name",
+    "category": "Category",
+    "defaultValue": "Default value",
+    "dataType": "Data type",
+    "proTip": "Pro tip",
+    "performanceImpact": "Performance impact",
+    "availableSettings": "Available settings",
+    "openWebsite": "Open in DB",
+    "copyVariable": "Copy variable",
+    "copied": "Copied",
+    "close": "Close",
+    "loadError": "Failed to load cvar categories.",
+    "searchError": "Failed to search cvars.",
+    "detailsError": "Failed to load cvar details.",
+    "copyError": "Failed to copy variable name."
+  },
   "settings": {
     "theme": "Theme",
     "sound": "Sound",
@@ -94,10 +129,14 @@
   },
   "about": {
     "title": "About",
+    "credits": "Credits",
     "author": "Author",
     "repository": "Repository",
     "version": "Version",
     "stack": "Technology stack",
+    "cvarsDatabase": "QL CVARs database source",
+    "configEditor": "Quake Live Config Editor",
+    "ryanBassett": "Special thanks to Ryan Bassett",
     "disclaimer": "This is not a cheat. It is an assistant app that helps players stay organized, calculate timings, and train timing memory.",
     "respawnRules": "Respawn rules",
     "game": "Game",
